@@ -22,11 +22,6 @@ pipeline {
                 sh 'php artisan migrate'
             }
         }
-        stage("Unit test") {
-            steps {
-                sh 'php artisan test'
-            }
-        }
         stage("Docker build") {
             steps {
                 sh "docker-compose build"
@@ -35,6 +30,11 @@ pipeline {
         stage("Deploy to staging") {
             steps {
                 sh "docker-compose up -d"
+            }
+        }
+		        stage("Unit test") {
+            steps {
+                sh 'php artisan test'
             }
         }
     }
