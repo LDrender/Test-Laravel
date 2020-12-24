@@ -17,8 +17,6 @@ pipeline {
         }
         stage("Docker build") {
             steps {
-				sh 'su root'
-				sh 'Dev12345'
                 sh "docker-compose build"
             }
         }
