@@ -17,12 +17,7 @@ pipeline {
         }
         stage("Docker build") {
             steps {
-                sh "docker-compose build"
-            }
-        }
-        stage("Deploy to staging") {
-            steps {
-                sh "docker-compose up -d"
+                sh "run_app.sh"
             }
         }
 		stage("Unit test") {
