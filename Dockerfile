@@ -8,6 +8,7 @@ WORKDIR /app
 
 COPY . .
 
+RUN composer install --optimize-autoloader --no-dev
 RUN php artisan config:cache && php artisan view:cache
 
 ENTRYPOINT [ "php", "artisan", "serve" ]
