@@ -1,8 +1,5 @@
 FROM php:7.2-fpm
 
-# Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
-
 # Set working directory
 WORKDIR /var/www
 
@@ -32,6 +29,13 @@ RUN docker-php-ext-install gd
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+COPY composer.json composer.json
+#COPY composer.lock composer.lock /var/www/
+COPY . .
+RUN composer install
+RUN composer dump-autoload
+RUN php artisan key:generate
+
 # Add user for laravel application
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
@@ -48,7 +52,5 @@ USER www
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
-
-RUN php artisan key:generate
 
 ENTRYPOINT [ "php", "artisan", "serve" ]
