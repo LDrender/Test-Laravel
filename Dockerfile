@@ -49,4 +49,6 @@ USER www
 EXPOSE 9000
 CMD ["php-fpm"]
 
+RUN php artisan key:generate
+
 ENTRYPOINT [ "php", "artisan", "serve" ]
