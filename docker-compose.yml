@@ -28,8 +28,11 @@ services:
    volumes:
      - ./:/var/www
      - ./docker-compose/nginx/:/etc/nginx/conf.d/
+   hostname: web.local
    networks:
-     - app-network
+        app-network:    
+          aliases:
+            - web.local
 
  #MySQL Service
  db:
