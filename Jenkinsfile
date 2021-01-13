@@ -7,13 +7,7 @@ pipeline {
                 git branch: 'develop', url: 'https://github.com/LDrender/Test-Laravel.git'
             }
         }
-		stage('Install Composer') {
-			steps {
-                sh 'composer install'
-            }
-			
-		}
-        stage("Build") {
+        stage("Build .env Step 1") {
             environment {
                 DB_HOST = credentials("Mekalink-DB-Host")
                 DB_DATABASE = credentials("	Mekalink-DB-Name")
@@ -21,7 +15,6 @@ pipeline {
             }
             steps {
                 sh 'cp .env.example .env'
-				sh 'php artisan key:generate'
                 sh 'echo DB_HOST=${DB_HOST} >> .env'
                 sh 'echo DB_USERNAME=${DB_USER_USR} >> .env'
                 sh 'echo DB_DATABASE=${DB_DATABASE} >> .env'
@@ -35,13 +28,19 @@ pipeline {
         }
         stage("Docker up") {
             steps {
-                sh "sudo docker-compose up"
+                sh "sudo docker-compose up -d"
             }
         }
-		stage("Unit test") {
+        stage("Build .env Step 2") {
             steps {
-                sh 'php artisan test'
+                sh 'sudo docker exec mekalink-app php artisan key:generate'
             }
         }
+        stage("Unit test") {
+            steps {
+                sh 'sudo docker exec mekalink-app php artisan test'
+            }
+        }
+        
     }
 }
