@@ -30,7 +30,6 @@ services:
      - "443:443"
    volumes:
      - ./:/var/www
-     - ./nginx/conf.d/:/etc/nginx/conf.d/
    networks:
      - app-network
 
@@ -51,7 +50,6 @@ services:
       SERVICE_NAME: mysql
    volumes:
      - dbdata:/var/lib/mysql/
-     - ./mysql/my.cnf:/etc/mysql/my.cnf
    networks:
      - app-network
 

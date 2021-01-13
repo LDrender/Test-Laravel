@@ -1,6 +1,12 @@
 pipeline {
     agent any
+
     stages {
+        stage('Checkout Repository app') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/LDrender/Test-Laravel.git'
+            }
+        }
         stage("Build") {
             environment {
                 DB_HOST = credentials("Mekalink-DB-Host")
@@ -20,7 +26,7 @@ pipeline {
                 sh "sudo docker-compose build"
             }
         }
-		stage("Docker up") {
+        stage("Docker up") {
             steps {
                 sh "sudo docker-compose up"
             }
