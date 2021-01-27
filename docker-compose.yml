@@ -34,7 +34,7 @@ services:
 
  #MySQL Service
  db:
-   image: mysql:5.7.23
+   image: mysql:5.7.22
    container_name: mekalink-db
    restart: unless-stopped
    tty: true
@@ -48,7 +48,6 @@ services:
       - MYSQL_USER=dbUsername
       - MYSQL_PASSWORD=dbPassword
       - MYSQL_HOST_ROOT=%
-    command: mysqld --sql_mode=""
    networks:
      - app-network
 
