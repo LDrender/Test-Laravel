@@ -53,9 +53,13 @@ def configuration() {
 
 def pushToEnvironmentSpecific(configuration) {
 	
-	def sqlFile = dumpDatabase(configuration, "${configuration.mysqlDataBase}", "${dbUser}", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
-	copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
-
+	def environmentToCopy = getEnvironmentToCopy();
+	if (environmentToCopy) {
+		def sqlFile = dumpDatabase(environmentToCopy, "imdb", "image", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
+		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
+	} else {
+		copyFileToRemote("${dockerFilesDirectory}/mysql-db-init/*.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+	}
 }
 
 
@@ -138,6 +142,26 @@ def environment() {
 		return getEnvironmentName()
 	}
 	throw new Exception("Impossible to determine environment")
+}
+
+def getEnvironmentToCopy() {
+	def configurations = configuration()
+	for (configuration in configurations) {
+		if (pullRequestTitleContainsTag("data:${configuration.key}")) {
+			return configuration.value
+		}
+	}
+	def current = currentConfiguration();
+	if (current.environmentToCopy) {
+		return configurations[current.environmentToCopy]
+	}
+	return null
+}
+
+def pullRequestTitleContainsTag(expectedTag) {
+	def changeTitle = "${env.CHANGE_TITLE}"
+	expectedTag = expectedTag.toLowerCase()
+	return changeTitle.toLowerCase().contains("[${expectedTag}]")
 }
 
 def getEnvironmentName() {
