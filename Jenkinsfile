@@ -62,6 +62,8 @@ def pushToEnvironmentSpecific(configuration) {
 // Can not be configured by app : Process
 // ----------------------------------------------
 
+String cron_string = BRANCH_NAME == masterBranch ? "00 01,13 * * *" : ""
+
 pipeline {
 	agent any
 	triggers { cron(cron_string) }
