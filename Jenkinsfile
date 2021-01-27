@@ -16,8 +16,8 @@ secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
 
 appDevLocal = true
-appDevIpDev = 10.0.0.7
-appDevIpProd = 10.0.0.7
+appDevIpDev = "10.0.0.6"
+appDevIpProd = "10.0.0.7"
 
 dockerFilesDirectory="./build/"
 user="lduchier"
