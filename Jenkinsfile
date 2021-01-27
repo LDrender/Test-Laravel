@@ -92,8 +92,10 @@ pipeline {
 def deliver() {	
 	def configuration = currentConfiguration()
 	
-	fillFiles(configuration)
+	fillFilesEnv(configuration)
+	fillFilesDocker(configuration)
 	
+	preBuildDocker()
 	//pushToEnvironmentSpecific(configuration)
 				
 	copyDockerFile(configuration.dockerTag, configuration.ip)
@@ -243,8 +245,34 @@ def copyDockerFile(dockerTag, ip) {
 	sh "ssh ${user}@${ip} docker load -i ${appName}-${dockerTag}.img"
 }
 
+def preBuildDocker() {
+	sh "sudo docker-compose build app"
+}
 
-def fillFiles(configuration) {
+
+def fillFilesEnv(configuration) {
+
+	def confAppName = appName+"-"+configuration.dockerTag
+
+	def variables = [
+		appName: confAppName,
+		dbHost: dbHost,
+		dbPort: configuration.mysql,
+		dbDatabase: configuration.mysqlDataBase,
+		dbUsername: dbUser,
+		dbPassword: configuration.mysqlPassword
+	]
+
+	//copy Exemple env file for fill next
+	sh 'cp .env.example .env'
+	
+	variables.each { key, val ->
+		sh "sed -i 's/{${key}}/${val}/g' .env"
+		sh "sed -i 's/${key}/${val}/g' .env"
+	}
+}
+
+def fillFilesDocker(configuration) {
 
 	def confAppName = appName+"-"+configuration.dockerTag
 

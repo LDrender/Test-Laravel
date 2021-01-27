@@ -3,7 +3,7 @@ services:
 
  #PHP Service
  app:
-   image: mekalink:dev
+   image: appName
    build:
      context: .
      dockerfile: Dockerfile
@@ -43,12 +43,12 @@ services:
    volumes:
      - ./api:/var/lib/mysql
    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      - MYSQL_ROOT_PASSWORD=dbRootPassword
+      - MYSQL_DATABASE=dbDatabase
+      - MYSQL_USER=dbUsername
+      - MYSQL_PASSWORD=dbPassword
+      - MYSQL_HOST_ROOT=%
+    command: mysqld --sql_mode=""
    networks:
      - app-network
 
