@@ -94,7 +94,7 @@ def deliver() {
 	
 	fillFiles(configuration)
 	
-	pushToEnvironmentSpecific(configuration)
+	//pushToEnvironmentSpecific(configuration)
 				
 	copyDockerFile(configuration.dockerTag, configuration.ip)
 	
