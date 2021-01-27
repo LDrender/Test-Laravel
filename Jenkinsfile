@@ -205,10 +205,10 @@ def fillFiles(configuration) {
 
 	def variables = [
 		appName: appName+"-"+configuration.dockerTag,
-		dbHost: dbHost
+		dbHost: dbHost,
 		dbPort: configuration.mysql,
-		dbDatabase: configuration.mysqlDataBase
-		dbUsername: dbUser
+		dbDatabase: configuration.mysqlDataBase,
+		dbUsername: dbUser,
 		dbPassword: configuration.mysqlPassword
 	]
 
