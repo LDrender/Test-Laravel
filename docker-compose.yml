@@ -3,6 +3,7 @@ services:
 
  #PHP Service
  app:
+   image: mekalink:dev
    build:
      context: .
      dockerfile: Dockerfile
