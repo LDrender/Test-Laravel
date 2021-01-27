@@ -16,7 +16,7 @@
         <div class="container">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/laravel/test/public">Accueil</a>
+                    <a class="nav-link active" href="./">Accueil</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="a-propos">A propos</a>
