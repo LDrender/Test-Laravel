@@ -21,6 +21,7 @@ appDevIpProd = "10.0.0.7"
 
 dockerFilesDirectory="build/"
 user="lduchier"
+masterBranch = "main"
 
 // ----------------------------------------------
 // Can be configured by app
