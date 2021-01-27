@@ -20,7 +20,7 @@ appDevIpDev = "10.0.0.6"
 appDevIpProd = "10.0.0.7"
 
 dockerFilesDirectory="build/"
-user="lduchier"
+user="dev"
 masterBranch = "main"
 
 // ----------------------------------------------
