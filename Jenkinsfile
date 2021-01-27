@@ -242,8 +242,8 @@ def restartDocker(ip, destEnvName) {
 
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
-	sh "sudo scp -v -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
-	sh "sudo ssh ${user}@${ip} docker load -i ${appName}-${dockerTag}.img"
+	sh "scp -v -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
+	sh "ssh ${user}@${ip} docker load -i ${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker() {
