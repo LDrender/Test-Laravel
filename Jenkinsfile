@@ -93,6 +93,7 @@ def deliver() {
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
+	
 	fillFilesDocker(configuration)
 	
 	preBuildDocker()
