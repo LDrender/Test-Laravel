@@ -19,7 +19,7 @@ appDevLocal = true
 appDevIpDev = "10.0.0.6"
 appDevIpProd = "10.0.0.7"
 
-dockerFilesDirectory="build/"
+dockerFilesDirectory="build"
 user="dev"
 masterBranch = "main"
 
@@ -58,7 +58,7 @@ def pushToEnvironmentSpecific(configuration) {
 		def sqlFile = dumpDatabase(environmentToCopy, "imdb", "image", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
 	} else {
-		copyFileToRemote("${dockerFilesDirectory}*.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("${dockerFilesDirectory}/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
 	}
 }
 
