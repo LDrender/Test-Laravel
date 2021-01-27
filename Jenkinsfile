@@ -203,8 +203,10 @@ def copyDockerFile(dockerTag, ip) {
 
 def fillFiles(configuration) {
 
+	def confAppName = appName+"-"+configuration.dockerTag
+
 	def variables = [
-		appName: appName+"-"+configuration.dockerTag,
+		appName: confAppName,
 		dbHost: dbHost,
 		dbPort: configuration.mysql,
 		dbDatabase: configuration.mysqlDataBase,
