@@ -33,7 +33,7 @@ def configuration() {
 
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
-			mysqlPassword: dbPassword,
+			mysqlPassword: mysqlPassword,
 			host: prodHostName,
 			smtp: 8025,
 			dockerTag: "prod"
@@ -274,23 +274,20 @@ def fillFilesEnv(configuration) {
 
 def fillFilesDocker(configuration) {
 
-	def confAppName = appName+"-"+configuration.dockerTag
+	def confAppName = appName+":"+configuration.dockerTag
 
 	def variables = [
 		appName: confAppName,
-		dbHost: dbHost,
 		dbPort: configuration.mysql,
 		dbDatabase: configuration.mysqlDataBase,
 		dbUsername: dbUser,
+		dbRootPassword: dbPassword,
 		dbPassword: configuration.mysqlPassword
 	]
-
-	//copy Exemple env file for fill next
-	sh 'cp .env.example .env'
 	
 	variables.each { key, val ->
-		sh "sed -i 's/{${key}}/${val}/g' .env"
-		sh "sed -i 's/${key}/${val}/g' .env"
+		sh "sed -i 's/{${key}}/${val}/g' docker-compose.yml"
+		sh "sed -i 's/${key}/${val}/g' docker-compose.yml"
 	}
 }
 
