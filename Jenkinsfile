@@ -58,7 +58,7 @@ def pushToEnvironmentSpecific(configuration) {
 		def sqlFile = dumpDatabase(environmentToCopy, "imdb", "image", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
 	} else {
-		copyFileToRemote("${dockerFilesDirectory}/mysql-db-init/*.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("${dockerFilesDirectory}/*.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
 	}
 }
 
