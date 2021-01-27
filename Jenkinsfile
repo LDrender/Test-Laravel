@@ -19,7 +19,7 @@ appDevLocal = true
 appDevIpDev = "10.0.0.6"
 appDevIpProd = "10.0.0.7"
 
-dockerFilesDirectory="./build/"
+dockerFilesDirectory="build/"
 user="lduchier"
 
 // ----------------------------------------------
@@ -164,6 +164,22 @@ def onMasterBranch() {
 }
 
 
+def pullRequestDeploy() {
+	if (pullRequest()) {
+		return !pullRequestTitleContainsTag("minor")
+	}
+	return false
+}
+
+def dailyDeploy() {
+	def res = false
+	currentBuild.rawBuild.getCauses().each {
+		if (it.toString().startsWith('hudson.triggers.TimerTrigger')) {
+			res = true
+		}
+	}
+	return res
+}
 
 // --- Groovy helpers ---
 
