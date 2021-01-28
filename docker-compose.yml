@@ -14,6 +14,8 @@ services:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
    working_dir: /var/www
+   networks:
+     - app-network
 
  #Nginx Service
  webserver:
@@ -27,6 +29,8 @@ services:
    volumes:
      - ./:/var/www
      - ./build/nginx/:/etc/nginx/conf.d/
+   networks:
+     - app-network
 
  #MySQL Service
  db:
@@ -45,3 +49,10 @@ services:
       - MYSQL_USER=dbUsername
       - MYSQL_PASSWORD=dbPassword
       - MYSQL_HOST_ROOT=%
+   networks:
+     - app-network
+
+#Docker Networks
+networks:
+ app-network:
+   driver: bridge
