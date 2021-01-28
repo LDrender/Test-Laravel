@@ -30,21 +30,17 @@ masterBranch = "main"
 def configuration() {
 	return [
 		prod: [
-
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: prodHostName,
-			smtp: 8025,
 			dockerTag: "prod"
 		],
 		dev: [
-			app: 23180,
 			appDebug: 23181,
-			mysql: 23108,
+			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
-			smtp: 23109,
 			host: devHostName,
 			dockerTag: "dev"
 		]
@@ -134,9 +130,7 @@ def currentConfiguration() {
 	if (configuration.mysql == null) {
 		configuration.mysql = 0
 	}
-	if (configuration.smtp == null) {
-		configuration.smtp = 0
-	}
+
 	configuration.env = env
 	return configuration
 }
@@ -426,4 +420,10 @@ def generateHeidiSqlFile(configuration) {
 
 def copyFileToRemote(localFileName, remoteFileName, ip) {
 	sh "rsync -r ${localFileName} ${user}@${ip}:${remoteFileName}"
+}
+
+def writeFileToRemote(ip, remoteFilePath, content) {
+	writeFile file: "${dockerFilesDirectory}/temp.txt", text: content
+	sh "scp ${dockerFilesDirectory}/temp.txt ${user}@${ip}:${remoteFilePath}"
+	sh "ssh ${user}@${ip} chmod 777 ${remoteFilePath}"
 }
