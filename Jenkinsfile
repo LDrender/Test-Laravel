@@ -437,5 +437,4 @@ def findRemoteDirectory(ip, directoryName){
 
 def createRemoteDirectory(ip, directoryName) {
 		sh "ssh ${user}@${ip} mkdir -p ${directoryName}"
-		sh "ssh ${user}@${ip} chown :jhipster ${directoryName}"
 }
