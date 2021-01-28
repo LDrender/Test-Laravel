@@ -248,7 +248,6 @@ def restartDocker(ip, destEnvName) {
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
-	sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${user}@${ip}:~/docker-compose.yml"
 	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
 	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
 }
@@ -419,7 +418,7 @@ def generateHeidiSqlFile(configuration) {
 // --- File helpers ---
 
 def copyFileToRemote(localFileName, remoteFileName, ip) {
-	sh "rsync -r ${localFileName} ${user}@${ip}:${remoteFileName}"
+	sh "scp -o StrictHostKeyChecking=no ${localFileName} ${user}@${ip}:${remoteFileName}"
 }
 
 def writeFileToRemote(ip, remoteFilePath, content) {
