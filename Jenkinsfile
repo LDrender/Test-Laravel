@@ -51,7 +51,7 @@ def pushToEnvironmentSpecific(configuration) {
 	
 	def environmentToCopy = getEnvironmentToCopy();
 
-	createRemoteDirectory(configuration.ip, "~/mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "/home/${user}/mysql-${configuration.dockerTag}/");
 
 	if (environmentToCopy) {
 		def sqlFile = dumpDatabase(environmentToCopy, "${configuration.dbDatabase}", "${dbUser}", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
