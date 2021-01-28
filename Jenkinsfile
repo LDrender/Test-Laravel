@@ -424,6 +424,7 @@ def generateHeidiSqlFile(configuration) {
 
 def copyFileToRemote(localFileName, remoteFileName, ip) {
 	sh "scp -o StrictHostKeyChecking=no ${localFileName} ${user}@${ip}:${remoteFileName}"
+	sh "ssh ${user}@${ip} chmod 777 ${remoteFilePath}"
 }
 
 def writeFileToRemote(ip, remoteFilePath, content) {
