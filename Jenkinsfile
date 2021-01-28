@@ -247,7 +247,7 @@ def restartDocker(ip, destEnvName) {
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
-	sh "scp -o StrictHostKeyChecking=no ./ ${user}@${ip}:~/test/"
+	sh "scp -o StrictHostKeyChecking=no ./* ${user}@${ip}:~/test/"
 	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
 }
 
