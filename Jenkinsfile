@@ -10,7 +10,7 @@ devHostName = "srvmekalinkdev.amplitude-ortho.com"
 prodHostName = "srvmekalinkprod.amplitude-ortho.com"
 
 dbHost = "db"
-dbUser = "root"
+dbUser = "mekalinkUser"
 dbPassword = "SLXMK6BCCYWWTA3J"
 secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
@@ -55,7 +55,7 @@ def pushToEnvironmentSpecific(configuration) {
 	
 	def environmentToCopy = getEnvironmentToCopy();
 	if (environmentToCopy) {
-		def sqlFile = dumpDatabase(environmentToCopy, "imdb", "image", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
+		def sqlFile = dumpDatabase(environmentToCopy, "${configuration.dbDatabase}", "${dbUser}", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
 	} else {
 		copyFileToRemote("${dockerFilesDirectory}/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
@@ -95,13 +95,24 @@ def deliver() {
 	fillFilesEnv(configuration)
 
 	fillFilesDocker(configuration)
+
+	copyFileToRemote("docker-compose.yml", "~/docker-compose.yml", configuration.ip)
 	
 	preBuildDocker()
-	//pushToEnvironmentSpecific(configuration)
+
+	writeFileToRemote(configuration.ip, "clean.${appName}.sh", generateCleanSH(configuration, appName))
+	writeFileToRemote(configuration.ip, "clean.${appName}.${configuration.dockerTag}.sh", generateCleanSHTag(configuration, appName))
+	
+	pushToEnvironmentSpecific(configuration)
 				
 	copyDockerFile(configuration.dockerTag, configuration.ip)
 	
 	restartDocker(configuration.ip, configuration.dockerTag)
+
+	if (toInt("" + configuration.mysql) != 0) {
+		def fileContent = generateHeidiSqlFile(configuration);
+		writeJenkinsArtifact("heidisql_"+ configuration.dockerTag +".reg", fileContent)
+	}
 	
 	writeJenkinsBuildInfos(configuration)
 }
@@ -303,9 +314,6 @@ def writeJenkinsBuildInfos(configuration) {
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
 	}
-	if (toInt("" + configuration.smtp) != 0) {
-		description += """<a href="http://${configuration.ip}:${configuration.smtp}">Accéder au serveur Smtp</a><br/>"""
-	}
 	if (toInt("" + configuration.mysql) != 0) {
 		description += 	"""MySQL : ${configuration.ip}, port : ${configuration.mysql}<br/>"""
 	}
@@ -316,13 +324,101 @@ def writeJenkinsBuildInfos(configuration) {
 }
 
 
+
+
 // --- Database helpers ---
 
 def dumpDatabase(environment, dbName, dbUserName, targetFolder) {
 	sh "rm -rf ${targetFolder}"
 	sh "mkdir -p ${targetFolder}"
-	sh "mysqldump -h${dbHost} --port=${environment.mysql} -u ${dbUserName} -p${environment.mysqlPassword} ${dbName} > ${targetFolder}/${dbName}.sql"
+	sh "mysqldump -h${environment.host} --port=${environment.mysql} -u ${dbUserName} -p${environment.mysqlPassword} ${dbName} > ${targetFolder}/${dbName}.sql"
 	return "${targetFolder}/${dbName}.sql"
+}
+
+// --- Generated files ---
+
+
+def generateCleanSH(configuration, appName) {
+	return """
+#!/bin/bash
+
+app=${appName}
+
+if [ "\$#" -ne 1 ]; then
+    echo "Usage:"
+    echo " - ./clean.\$app.sh dev"
+    echo " - ./clean.\$app.sh PR-123"
+else
+	docker-compose -f app.\$app.\$1.yml stop
+	docker-compose -f app.\$app.\$1.yml rm --force
+	rm -rf /var/data/\$app/\$1
+	docker image prune -a --force
+	rm -f app.\$app.\$1.yml
+	rm -f \$app-\$1.img
+fi
+
+
+
+"""
+}
+
+
+def generateCleanSHTag(configuration, appName) {
+	return """
+#!/bin/bash
+
+./clean.${appName}.sh ${configuration.dockerTag}
+
+"""
+}
+
+
+def generateHeidiSqlFile(configuration) {
+	return """Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}]
+"SessionCreated"="2018-10-18 11:46:18"
+"Folder"=dword:00000001
+
+[HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}\\${configuration.dockerTag}]
+"SessionCreated"="2019-01-18 15:15:29"
+"Host"="${configuration.ip}"
+"WindowsAuth"=dword:00000000
+"User"="${dbUser}"
+"Password"="${dbPassword}"
+"LoginPrompt"=dword:00000000
+"Port"="${configuration.mysql}"
+"NetType"=dword:00000000
+"Compressed"=dword:00000000
+"LocalTimeZone"=dword:00000000
+"QueryTimeout"=dword:00000000
+"KeepAlive"=dword:00000000
+"FullTableStatus"=dword:00000001
+"Databases"=""
+"Comment"=""
+"StartupScriptFilename"=""
+"TreeBackground"=dword:1fffffff
+"SSHtunnelHost"=""
+"SSHtunnelHostPort"=dword:00000000
+"SSHtunnelUser"=""
+"SSHtunnelPassword"="5"
+"SSHtunnelTimeout"=dword:00000004
+"SSHtunnelPrivateKey"=""
+"SSHtunnelPort"=dword:00000ceb
+"SSL_Active"=dword:00000000
+"SSL_Key"=""
+"SSL_Cert"=""
+"SSL_CA"=""
+"SSL_Cipher"=""
+"ServerVersionFull"="5.7.20 - MySQL Community Server (GPL)"
+"ConnectCount"=dword:00000002
+"ServerVersion"=dword:0000c620
+"LastConnect"="2019-01-21 10:49:23"
+"lastUsedDB"="s11"
+
+[HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}\\${configuration.dockerTag}\\QueryHistory]
+
+"""
 }
 
 
