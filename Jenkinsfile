@@ -96,6 +96,7 @@ def deliver() {
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/docker-compose.yml", configuration.ip)
+	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
 	
 	preBuildDocker()
 
