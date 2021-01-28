@@ -50,6 +50,9 @@ def configuration() {
 def pushToEnvironmentSpecific(configuration) {
 	
 	def environmentToCopy = getEnvironmentToCopy();
+
+	createRemoteDirectory(configuration.ip, "~/mysql-${configuration.dockerTag}/");
+
 	if (environmentToCopy) {
 		def sqlFile = dumpDatabase(environmentToCopy, "${configuration.dbDatabase}", "${dbUser}", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
@@ -426,4 +429,15 @@ def writeFileToRemote(ip, remoteFilePath, content) {
 	writeFile file: "${dockerFilesDirectory}/temp.txt", text: content
 	sh "scp ${dockerFilesDirectory}/temp.txt ${user}@${ip}:${remoteFilePath}"
 	sh "ssh ${user}@${ip} chmod 777 ${remoteFilePath}"
+}
+
+def findRemoteDirectory(ip, directoryName){
+	sh "ssh ${user}@${ip} find ${directoryName}"
+}
+
+def createRemoteDirectory(ip, directoryName) {
+	if(!findRemoteDirectory(ip, directoryName)){
+		sh "ssh ${user}@${ip} mkdir -p ${directoryName}"
+		sh "ssh ${user}@${ip} chown :jhipster ${directoryName}"
+	}
 }
