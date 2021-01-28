@@ -109,12 +109,7 @@ def deliver() {
 	
 	restartDocker(configuration.ip, configuration.dockerTag)
 
-	if (toInt("" + configuration.mysql) != 0) {
-		def fileContent = generateHeidiSqlFile(configuration);
-		writeJenkinsArtifact("heidisql_"+ configuration.dockerTag +".reg", fileContent)
-	}
 	
-	writeJenkinsBuildInfos(configuration)
 }
 
 
