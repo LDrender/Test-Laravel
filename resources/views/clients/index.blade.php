@@ -9,7 +9,7 @@
     @endforeach
 </ul>
 <hr>
-<form action="/laravel/test/public/clients" method="POST">
+<form action="clients" method="POST">
     @csrf
     <div class="form-group">
         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" placeholder ="Rentrez un pseudo...">
