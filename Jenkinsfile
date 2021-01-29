@@ -6,8 +6,8 @@ appName = "mekalink"
 appUseSSL = true
 
 
-devHostName = "srvmekalinkdev.amplitude-ortho.com"
-prodHostName = "srvmekalinkprod.amplitude-ortho.com"
+devHostName = "mekalink-dev.amplitude-ortho.com"
+prodHostName = "mekalink-prod.amplitude-ortho.com"
 
 dbHost = "db"
 dbUser = "mekalinkUser"
@@ -15,9 +15,9 @@ dbPassword = "SLXMK6BCCYWWTA3J"
 secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
 
-appDevLocal = true
+appDevLocal = false
 appDevIpDev = "192.168.16.29"
-appDevIpProd = "10.0.0.7"
+appDevIpProd = "192.168.17.66"
 
 dockerFilesDirectory="build"
 user="dev"
