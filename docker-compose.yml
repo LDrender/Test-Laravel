@@ -3,6 +3,7 @@ services:
 
  #PHP Service
  app:
+   image: appName
    build:
      context: .
      dockerfile: Dockerfile
@@ -12,7 +13,7 @@ services:
    environment:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
-   working_dir: /var/www
+   working_dir: /var/www/
    networks:
      - app-network
 
@@ -27,7 +28,7 @@ services:
      - "443:443"
    volumes:
      - ./:/var/www
-     - ./docker-compose/nginx/:/etc/nginx/conf.d/
+     - ./build/nginx/:/etc/nginx/conf.d/
    networks:
      - app-network
 
@@ -38,16 +39,16 @@ services:
    restart: unless-stopped
    tty: true
    ports:
-     - "3306:3306"
+     - dbPort:3306
    volumes:
+     - ./mysql-dockerTag/:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      - MYSQL_ROOT_PASSWORD=dbRootPassword
+      - MYSQL_DATABASE=dbDatabase
+      - MYSQL_USER=dbUsername
+      - MYSQL_PASSWORD=dbPassword
+      - MYSQL_HOST_ROOT=%
    networks:
      - app-network
 
