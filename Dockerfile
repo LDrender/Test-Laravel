@@ -36,8 +36,6 @@ COPY . .
 RUN composer install
 RUN composer dump-autoload
 
-# Generate key for Laravel
-CMD php artisan key:generate
 
 # Add user for laravel application
 RUN groupadd -g 1000 www

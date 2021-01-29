@@ -240,6 +240,7 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml up -d"
+	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
 	
 }
 
