@@ -219,7 +219,7 @@ def dailyDeploy() {
 
 def getIp(hostName) {
 	//VMWare Test
-	if(appDevLocal == true){
+	if(appDevLocal == false){
 		if(hostName == devHostName){
 			return appDevIpDev
 		}
