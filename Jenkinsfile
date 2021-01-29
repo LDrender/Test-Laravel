@@ -6,8 +6,8 @@ appName = "mekalink"
 appUseSSL = true
 
 
-devHostName = "srvmekalinkdev.amplitude-ortho.com"
-prodHostName = "srvmekalinkprod.amplitude-ortho.com"
+devHostName = "mekalink-dev"
+prodHostName = "mekalink-prod"
 
 dbHost = "db"
 dbUser = "mekalinkUser"
@@ -218,16 +218,6 @@ def dailyDeploy() {
 // --- Groovy helpers ---
 
 def getIp(hostName) {
-	//VMWare Test
-	if(appDevLocal == true){
-		if(hostName == devHostName){
-			return appDevIpDev
-		}
-		else if(hostName == prodHostName){
-			return appDevIpProd
-		}
-	}
-
 	def address = InetAddress.getByName(hostName); 
 	return address.getHostAddress();
 }
