@@ -6,8 +6,8 @@ appName = "mekalink"
 appUseSSL = true
 
 
-devHostName = "mekalinkdev"
-prodHostName = "mekalinkprod"
+devHostName = "srvmekalinkdev.amplitude-ortho.com"
+prodHostName = "srvmekalinkprod.amplitude-ortho.com"
 
 dbHost = "db"
 dbUser = "mekalinkUser"
