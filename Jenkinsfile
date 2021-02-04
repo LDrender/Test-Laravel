@@ -354,7 +354,7 @@ def writeJenkinsBuildInfos(configuration) {
 // --- Database helpers ---
 
 def dumpDatabase() {
-	def ipProd = getHostAddress("${prodHostName}")
+	def ipProd = getIp("${prodHostName}")
 
 	sh "ssh -o StrictHostKeyChecking=no ${user}@${ipProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	return "/var/lib/jenkins/secrets/dumpMekalinkProd.sql"
