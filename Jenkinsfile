@@ -341,7 +341,7 @@ def writeJenkinsBuildInfos(configuration) {
 
 def dumpDatabase() {
 
-	sh "ssh ${user}@${appDevIpProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	sh "ssh -o StrictHostKeyChecking=no ${user}@${appDevIpProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	return "/var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 
 }
