@@ -32,6 +32,7 @@ masterBranch = "main"
 def configuration() {
 	return [
 		prod: [
+			app: 80,
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
@@ -39,6 +40,7 @@ def configuration() {
 			dockerTag: "prod"
 		],
 		preprod: [
+			app: 80,
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
@@ -46,8 +48,8 @@ def configuration() {
 			dockerTag: "preprod"
 		],
 		dev: [
-			appDebug: 23181,
-			mysql: 3306,
+			app: 2380,
+			mysql: 2386,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
@@ -260,7 +262,7 @@ def getIp(hostName) {
 	}
 
 	def address = InetAddress.getByName(hostName); 
-	return address;
+	return address.getHostAddress();
 }
 
 
@@ -315,6 +317,7 @@ def fillFilesDocker(configuration) {
 	def confAppName = appName+":"+configuration.dockerTag
 
 	def variables = [
+		portApp: configuration.app,
 		dockerTag: configuration.dockerTag,
 		appName: confAppName,
 		dbPort: configuration.mysql,
