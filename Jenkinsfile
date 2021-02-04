@@ -16,8 +16,8 @@ secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
 
 appDevLocal = true
-appDevIpDev = "192.168.16.29"
-appDevIpProd = "192.168.17.66"
+appDevIpDev = "10.0.0.6"
+appDevIpProd = "10.0.0.8"
 
 dockerFilesDirectory="build"
 user="dev"
@@ -48,16 +48,20 @@ def configuration() {
 }
 
 def pushToEnvironmentSpecific(configuration) {
-	
-	def environmentToCopy = getEnvironmentToCopy();
 
 	createRemoteDirectory(configuration.ip, "mysql-${configuration.dockerTag}/");
 
-	if (environmentToCopy) {
-		def sqlFile = dumpDatabase(environmentToCopy, "${configuration.dbDatabase}", "${dbUser}", "${dockerFilesDirectory}/mysql-${configuration.dockerTag}")
+	if ("${configuration.dockerTag}" != "prod") {
+
+		def sqlFile = dumpDatabase()
+		
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
-	} else {
+
+	} 
+	else {
+
 		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+	
 	}
 }
 
@@ -73,7 +77,7 @@ pipeline {
 	triggers { cron(cron_string) }
 	stages {
 		
-		stage('Deliver') {
+		stage('Build App') {
 			when {
 				anyOf {
 					branch 'env/*'
@@ -82,13 +86,37 @@ pipeline {
 				}
 			}
 			steps {				
-				deliver()
+				buildApp()
+			}
+		}
+		stage('Push Build App') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				pushBuildApp()
+			}
+		}
+		stage('Deploy App') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				deployApp()
 			}
 		}
 	}
 }
 
-def deliver() {	
+def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
@@ -99,17 +127,20 @@ def deliver() {
 	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
 	
 	preBuildDocker()
+}
 
-	writeFileToRemote(configuration.ip, "clean.${appName}.sh", generateCleanSH(configuration, appName))
-	writeFileToRemote(configuration.ip, "clean.${appName}.${configuration.dockerTag}.sh", generateCleanSHTag(configuration, appName))
-	
+def pushBuildApp(){
+	def configuration = currentConfiguration()
+
 	pushToEnvironmentSpecific(configuration)
 				
 	copyDockerFile(configuration.dockerTag, configuration.ip)
-	
-	restartDocker(configuration.ip, configuration.dockerTag)
+}
 
+def deployApp() {	
+	def configuration = currentConfiguration()
 	
+	restartDocker(configuration.ip, configuration.dockerTag)	
 }
 
 
@@ -149,20 +180,6 @@ def environment() {
 		return getEnvironmentName()
 	}
 	throw new Exception("Impossible to determine environment")
-}
-
-def getEnvironmentToCopy() {
-	def configurations = configuration()
-	for (configuration in configurations) {
-		if (pullRequestTitleContainsTag("data:${configuration.key}")) {
-			return configuration.value
-		}
-	}
-	def current = currentConfiguration();
-	if (current.environmentToCopy) {
-		return configurations[current.environmentToCopy]
-	}
-	return null
 }
 
 def pullRequestTitleContainsTag(expectedTag) {
@@ -322,49 +339,14 @@ def writeJenkinsBuildInfos(configuration) {
 
 // --- Database helpers ---
 
-def dumpDatabase(environment, dbName, dbUserName, targetFolder) {
-	sh "rm -rf ${targetFolder}"
-	sh "mkdir -p ${targetFolder}"
-	sh "mysqldump -h${environment.host} --port=${environment.mysql} -u ${dbUserName} -p${environment.mysqlPassword} ${dbName} > ${targetFolder}/${dbName}.sql"
-	return "${targetFolder}/${dbName}.sql"
+def dumpDatabase() {
+
+	sh "ssh ${user}@${appDevIpProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	return "/var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+
 }
 
 // --- Generated files ---
-
-
-def generateCleanSH(configuration, appName) {
-	return """
-#!/bin/bash
-
-app=${appName}
-
-if [ "\$#" -ne 1 ]; then
-    echo "Usage:"
-    echo " - ./clean.\$app.sh dev"
-    echo " - ./clean.\$app.sh PR-123"
-else
-	docker-compose -f app.\$app.\$1.yml stop
-	docker-compose -f app.\$app.\$1.yml rm --force
-	rm -rf /var/data/\$app/\$1
-	docker image prune -a --force
-	rm -f app.\$app.\$1.yml
-	rm -f \$app-\$1.img
-fi
-
-
-
-"""
-}
-
-
-def generateCleanSHTag(configuration, appName) {
-	return """
-#!/bin/bash
-
-./clean.${appName}.sh ${configuration.dockerTag}
-
-"""
-}
 
 
 def generateHeidiSqlFile(configuration) {
