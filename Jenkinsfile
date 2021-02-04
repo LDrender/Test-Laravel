@@ -7,6 +7,7 @@ appUseSSL = true
 
 
 devHostName = "srvmekalinkdev.amplitude-ortho.com"
+preProdHostName = "srvmekalinkpreprod.amplitude-ortho.com"
 prodHostName = "srvmekalinkprod.amplitude-ortho.com"
 
 dbHost = "db"
@@ -17,6 +18,7 @@ mysqlPassword = "M3kaL1f0"
 
 appDevLocal = true
 appDevIpDev = "10.0.0.6"
+appDevIpProd = "10.0.0.8"
 appDevIpProd = "10.0.0.8"
 
 dockerFilesDirectory="build"
@@ -35,6 +37,13 @@ def configuration() {
 			mysqlPassword: mysqlPassword,
 			host: prodHostName,
 			dockerTag: "prod"
+		],
+		preprod: [
+			mysql: 3306,
+			mysqlDataBase: "mekalink",
+			mysqlPassword: mysqlPassword,
+			host: preProdHostName,
+			dockerTag: "preprod"
 		],
 		dev: [
 			appDebug: 23181,
@@ -56,6 +65,8 @@ def pushToEnvironmentSpecific(configuration) {
 		def sqlFile = dumpDatabase()
 		
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
+		
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec mekalink-db mysql -u ${dbUser} -p${mysqlPassword}  mekalink < ~/mysql-${configuration.dockerTag}/dumpMekalinkProd.sql"
 
 	} 
 	else {
@@ -240,13 +251,16 @@ def getIp(hostName) {
 		if(hostName == devHostName){
 			return appDevIpDev
 		}
+		else if(hostName == preProdHostName){
+			return appDevIpPreProd
+		}
 		else if(hostName == prodHostName){
 			return appDevIpProd
 		}
 	}
 
 	def address = InetAddress.getByName(hostName); 
-	return address.getHostAddress();
+	return address;
 }
 
 
@@ -340,8 +354,9 @@ def writeJenkinsBuildInfos(configuration) {
 // --- Database helpers ---
 
 def dumpDatabase() {
+	def ipProd = getHostAddress("${prodHostName}")
 
-	sh "ssh -o StrictHostKeyChecking=no ${user}@${appDevIpProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	sh "ssh -o StrictHostKeyChecking=no ${user}@${ipProd} sudo docker exec mekalink-db mysqldump -u ${dbUser} -p${mysqlPassword}  mekalink > /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	return "/var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 
 }
