@@ -66,7 +66,7 @@ def pushToEnvironmentSpecific(configuration) {
 		
 		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
 		
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec mekalink-db mysql -u ${dbUser} -p${mysqlPassword}  mekalink < ~/mysql-${configuration.dockerTag}/dumpMekalinkProd.sql"
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec mekalink-db mysql -u ${dbUser} -p${mysqlPassword}  mekalink < mysql-${configuration.dockerTag}/dumpMekalinkProd.sql"
 
 	} 
 	else {
