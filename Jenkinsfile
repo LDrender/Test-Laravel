@@ -10,7 +10,7 @@ devHostName = "srvmekalinkdev.amplitude-ortho.com"
 preProdHostName = "srvmekalinkpreprod.amplitude-ortho.com"
 prodHostName = "srvmekalinkprod.amplitude-ortho.com"
 
-dbHost = "127.0.0.1"
+dbHost = "db"
 dbUser = "mekalinkUser"
 dbPassword = "SLXMK6BCCYWWTA3J"
 secretFolder = "/var/secret/mekalink"
@@ -133,6 +133,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
+
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/docker-compose.yml", configuration.ip)
