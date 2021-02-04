@@ -133,7 +133,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-
+	fillFilesConfigPhp(configuration)
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/docker-compose.yml", configuration.ip)
@@ -330,6 +330,20 @@ def fillFilesDocker(configuration) {
 	variables.each { key, val ->
 		sh "sed -i 's/{${key}}/${val}/g' docker-compose.yml"
 		sh "sed -i 's/${key}/${val}/g' docker-compose.yml"
+	}
+}
+
+def fillFilesConfigPhp(configuration) {
+
+	def confAppName = appName+":"+configuration.dockerTag
+
+	def variables = [
+		3306: configuration.mysql
+	]
+	
+	variables.each { key, val ->
+		sh "sed -i 's/{${key}}/${val}/g' config/database.php"
+		sh "sed -i 's/${key}/${val}/g' config/database.php"
 	}
 }
 
