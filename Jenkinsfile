@@ -10,7 +10,7 @@ devHostName = "srvmekalinkdev.amplitude-ortho.com"
 preProdHostName = "srvmekalinkpreprod.amplitude-ortho.com"
 prodHostName = "srvmekalinkprod.amplitude-ortho.com"
 
-dbHost = "127.0.0.1:2386"
+dbHost = "127.0.0.1"
 dbUser = "mekalinkUser"
 dbPassword = "SLXMK6BCCYWWTA3J"
 secretFolder = "/var/secret/mekalink"
