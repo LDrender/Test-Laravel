@@ -49,7 +49,7 @@ def configuration() {
 		],
 		dev: [
 			app: 2380,
-			mysql: 2386,
+			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
