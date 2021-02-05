@@ -154,6 +154,13 @@ def deployApp() {
 	def configuration = currentConfiguration()
 	
 	restartDocker(configuration.ip, configuration.dockerTag)	
+
+	if (toInt("" + configuration.mysql) != 0) {
+		def fileContent = generateHeidiSqlFile(configuration);
+		writeJenkinsArtifact("heidisql_"+ configuration.dockerTag +".reg", fileContent)
+	}
+	
+	writeJenkinsBuildInfos(configuration)
 }
 
 
@@ -335,12 +342,17 @@ def fillFilesDocker(configuration) {
 
 // --- Jenkins helpers ---
 
+// --- Jenkins helpers ---
+
 def writeJenkinsBuildInfos(configuration) {
 	def description = "";
 	if (appUseSSL) {
 		description += """<a href="https://${configuration.host}:${configuration.app}">Accéder à l'application</a><br/>"""
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
+	}
+	if (toInt("" + configuration.smtp) != 0) {
+		description += """<a href="http://${configuration.ip}:${configuration.smtp}">Accéder au serveur Smtp</a><br/>"""
 	}
 	if (toInt("" + configuration.mysql) != 0) {
 		description += 	"""MySQL : ${configuration.ip}, port : ${configuration.mysql}<br/>"""
@@ -351,7 +363,12 @@ def writeJenkinsBuildInfos(configuration) {
 	currentBuild.description = description
 }
 
-
+def writeJenkinsArtifact(artifactName, content) {
+	
+	sh "touch ${dockerFilesDirectory}/${artifactName}"
+	writeFile file: "${dockerFilesDirectory}/" + artifactName, text: content
+	archiveArtifacts artifacts: "${dockerFilesDirectory}/" + artifactName, fingerprint: true
+}
 
 
 // --- Database helpers ---
