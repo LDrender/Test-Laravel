@@ -39,7 +39,7 @@ services:
    restart: unless-stopped
    tty: true
    ports:
-     - dbPort:3306
+     - dbPort:dbPort
    volumes:
      - ./mysql-dockerTag/:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
@@ -49,6 +49,7 @@ services:
       - MYSQL_USER=dbUsername
       - MYSQL_PASSWORD=dbPassword
       - MYSQL_HOST_ROOT=%
+      - MYSQL_TCP_PORT=dbPort
    networks:
      - app-network
 
