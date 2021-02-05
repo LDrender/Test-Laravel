@@ -5,6 +5,9 @@
 appName = "mekalink"
 appUseSSL = false
 
+appDevIpDev = "192.168.42.19"
+appDevIpPreProd = "192.168.42.54"
+appDevIpProd = "192.168.42.54"
 
 devHostName = "srvmekalinkdev.amplitude-ortho.com"
 preProdHostName = "srvmekalinkpreprod.amplitude-ortho.com"
@@ -16,11 +19,6 @@ dbPassword = "SLXMK6BCCYWWTA3J"
 secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
 
-appDevLocal = true
-appDevIpDev = "192.168.42.19"
-appDevIpPreProd = "192.168.42.54"
-appDevIpProd = "192.168.42.54"
-
 dockerFilesDirectory="build"
 user="dev"
 masterBranch = "main"
@@ -29,7 +27,7 @@ masterBranch = "main"
 // Can be configured by app
 // ----------------------------------------------
 
-def configuration() {
+def configuration(basePort) {
 	return [
 		prod: [
 			app: 80,
@@ -48,12 +46,12 @@ def configuration() {
 			dockerTag: "preprod"
 		],
 		dev: [
-			app: 2380,
+			app: 27000 + basePort,
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
-			dockerTag: "dev"
+			dockerTag: "dev" + basePort
 		]
 	]
 }
@@ -171,7 +169,7 @@ def deployApp() {
 // --- Configuration helpers ---
 
 def currentConfiguration() {
-	def configurations = configuration()
+	def configurations = configuration(getBasePort())
 	def env = environment()
 	def configuration = configurations[env]
 	if (configuration.ip == null) {
@@ -183,6 +181,16 @@ def currentConfiguration() {
 
 	configuration.env = env
 	return configuration
+}
+
+def getBasePort() {
+	if (pullRequest()) {
+		return toInt(env.CHANGE_ID);
+	}
+	if (onReleaseBranch()) {
+		return toInt(getReleaseVersion().replaceAll("[^\\d.]", ""));
+	}
+	return 0
 }
 
 
@@ -256,7 +264,7 @@ def dailyDeploy() {
 
 def getIp(hostName) {
 	//VMWare Test
-	if(appDevLocal == true){
+	if(appUseSSL != true){
 		if(hostName == devHostName){
 			return appDevIpDev
 		}
@@ -390,7 +398,7 @@ def generateHeidiSqlFile(configuration) {
 "Host"="${configuration.ip}"
 "WindowsAuth"=dword:00000000
 "User"="${dbUser}"
-"Password"="${dbPassword}"
+"Password"="${mysqlPassword}"
 "LoginPrompt"=dword:00000000
 "Port"="${configuration.mysql}"
 "NetType"=dword:00000000
