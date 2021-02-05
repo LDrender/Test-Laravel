@@ -185,10 +185,7 @@ def currentConfiguration() {
 
 def getBasePort() {
 	if (pullRequest()) {
-		return toInt(env.CHANGE_ID);
-	}
-	if (onReleaseBranch()) {
-		return toInt(getReleaseVersion().replaceAll("[^\\d.]", ""));
+		return env.CHANGE_ID;
 	}
 	return 0
 }
