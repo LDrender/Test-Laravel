@@ -47,7 +47,7 @@ def configuration(basePort) {
 		],
 		dev: [
 			app: 27000 + basePort,
-			mysql: 3306,
+			mysql: 28000 + basePort,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
@@ -153,7 +153,7 @@ def deployApp() {
 	
 	restartDocker(configuration.ip, configuration.dockerTag)	
 
-	if (configuration.mysql != null) {
+	if (toInt("" + configuration.mysql) != 0) {
 		def fileContent = generateHeidiSqlFile(configuration);
 		writeJenkinsArtifact("heidisql_"+ configuration.dockerTag +".reg", fileContent)
 	}
@@ -185,7 +185,7 @@ def currentConfiguration() {
 
 def getBasePort() {
 	if (pullRequest()) {
-		return env.CHANGE_ID;
+		return toInt(env.CHANGE_ID);
 	}
 	return 0
 }
@@ -258,6 +258,10 @@ def dailyDeploy() {
 }
 
 // --- Groovy helpers ---
+
+def toInt(String s) {
+    return s.matches("-?\\d+") ? Integer.parseInt(s) : 0;   
+}
 
 def getIp(hostName) {
 	//VMWare Test
@@ -356,7 +360,7 @@ def writeJenkinsBuildInfos(configuration) {
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
 	}
-	if (configuration.mysql != null) {
+	if (toInt("" + configuration.mysql) != 0) {
 		description += 	"""MySQL : ${configuration.ip}, port : ${configuration.mysql}<br/>"""
 	}
 	currentBuild.description = description
