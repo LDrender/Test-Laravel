@@ -3,7 +3,7 @@
 // Must be configured by app
 // ----------------------------------------------
 appName = "mekalink"
-appUseSSL = true
+appUseSSL = false
 
 
 devHostName = "srvmekalinkdev.amplitude-ortho.com"
@@ -155,7 +155,7 @@ def deployApp() {
 	
 	restartDocker(configuration.ip, configuration.dockerTag)	
 
-	if (toInt("" + configuration.mysql) != 0) {
+	if (configuration.mysql != null) {
 		def fileContent = generateHeidiSqlFile(configuration);
 		writeJenkinsArtifact("heidisql_"+ configuration.dockerTag +".reg", fileContent)
 	}
@@ -351,14 +351,8 @@ def writeJenkinsBuildInfos(configuration) {
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
 	}
-	if (toInt("" + configuration.smtp) != 0) {
-		description += """<a href="http://${configuration.ip}:${configuration.smtp}">Accéder au serveur Smtp</a><br/>"""
-	}
 	if (toInt("" + configuration.mysql) != 0) {
 		description += 	"""MySQL : ${configuration.ip}, port : ${configuration.mysql}<br/>"""
-	}
-	if (toInt("" + configuration.appDebug) != 0) {
-		description += 	"""Remote debug : ${configuration.ip}, port : ${configuration.appDebug}<br/>"""
 	}
 	currentBuild.description = description
 }
