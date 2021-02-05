@@ -351,7 +351,7 @@ def writeJenkinsBuildInfos(configuration) {
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
 	}
-	if (toInt("" + configuration.mysql) != 0) {
+	if (configuration.mysql != null) {
 		description += 	"""MySQL : ${configuration.ip}, port : ${configuration.mysql}<br/>"""
 	}
 	currentBuild.description = description
