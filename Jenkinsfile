@@ -134,7 +134,7 @@ def buildApp(){
 
 	fillFilesDocker(configuration)
 
-	copyFileToRemote("docker-compose.yml", "~/docker-compose.yml", configuration.ip)
+	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
 	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
 	
 	preBuildDocker()
@@ -285,9 +285,9 @@ def getIp(hostName) {
 
 def restartDocker(ip, destEnvName) {
 
-	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml stop"
-	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml rm --force"
-	sh "ssh ${user}@${ip} sudo docker-compose -f docker-compose.yml up -d"
+	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
+	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
+	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
 	
 }
