@@ -27,14 +27,14 @@ services:
      - "portApp:80"
    volumes:
      - ./:/var/www
-     - ./build/nginx-dockerTag/:/etc/nginx/conf.d/
+     - ./build/nginx/:/etc/nginx/conf.d/
    networks:
      - app-network-dockerTag
 
  #MySQL Service
- db-dockerTag:
+ db:
    image: mysql:5.7.22
-   container_name: mekalink-db-dockerTag
+   container_name: mekalink-db
    restart: unless-stopped
    tty: true
    ports:

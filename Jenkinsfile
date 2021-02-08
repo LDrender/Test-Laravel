@@ -128,7 +128,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-	fillFilesNginxConf(configuration)
+
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
@@ -286,9 +286,9 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
-	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
+	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
 	
-	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 
 }
 
@@ -296,10 +296,8 @@ def restartDocker(ip, destEnvName) {
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
-	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/img/${appName}-${dockerTag}.img"
-	sh "ssh ${user}@${ip} sudo docker load -i ./img/${appName}-${dockerTag}.img"
-
-	sh "ssh ${user}@${ip} sudo rm -rf ./img/${appName}-${dockerTag}.img"
+	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
+	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
@@ -350,17 +348,7 @@ def fillFilesDocker(configuration) {
 	}
 }
 
-def fillFilesNginxConf(configuration) {
-
-	def variables = [
-		dockerTag: configuration.dockerTag,
-	]
-	
-	variables.each { key, val ->
-		sh "sed -i 's/{${key}}/${val}/g' build/nginx/app.conf"
-		sh "sed -i 's/${key}/${val}/g' build/nginx/app.conf"
-	}
-}
+// --- Jenkins helpers ---
 
 // --- Jenkins helpers ---
 
