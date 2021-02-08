@@ -301,7 +301,7 @@ def copyDockerFile(dockerTag, ip) {
 	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
 }
 
-def preBuildDocker() {
+def preBuildDocker(configuration) {
 	sh "sudo docker-compose build app-${configuration.dockerTag}"
 }
 
