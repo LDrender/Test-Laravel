@@ -58,13 +58,13 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "~/dump/mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "./dump/mysql-${configuration.dockerTag}/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "~/dump/mysql-${configuration.dockerTag}/", configuration.ip)
+		copyFileToRemote(sqlFile, "./dump/mysql-${configuration.dockerTag}/", configuration.ip)
 		
 	} 
 	else {
