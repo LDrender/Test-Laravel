@@ -6,7 +6,7 @@ appName = "mekalink"
 appUseSSL = false
 
 appDevIpDev = "192.168.42.19"
-appDevIpPreProd = "192.168.42.54"
+appDevIpPreProd = "192.168.42.178"
 appDevIpProd = "192.168.42.54"
 
 devHostName = "srvmekalinkdev.amplitude-ortho.com"
@@ -288,8 +288,10 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
-	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
-
+	if (pullRequestTitleContainsTag("resetdb") || "${destEnvName}" == "preprod"){
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	}
+	
 }
 
 
