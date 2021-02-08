@@ -25,7 +25,6 @@ services:
    tty: true
    ports:
      - "portApp:80"
-     - "443:443"
    volumes:
      - ./:/var/www
      - ./build/nginx/:/etc/nginx/conf.d/

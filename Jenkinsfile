@@ -87,6 +87,19 @@ pipeline {
 	agent any
 	triggers { cron(cron_string) }
 	stages {
+
+		stage('Test') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				echo env.CHANGE_ID
+			}
+		}
 		
 		stage('Build App') {
 			when {
