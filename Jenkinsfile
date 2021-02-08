@@ -137,7 +137,7 @@ def buildApp(){
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
 	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
 	
-	preBuildDocker()
+	preBuildDocker(configuration)
 }
 
 def pushBuildApp(){
@@ -302,7 +302,7 @@ def copyDockerFile(dockerTag, ip) {
 }
 
 def preBuildDocker() {
-	sh "sudo docker-compose build app"
+	sh "sudo docker-compose build app-${configuration.dockerTag}"
 }
 
 
