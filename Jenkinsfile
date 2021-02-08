@@ -97,7 +97,7 @@ pipeline {
 				}
 			}
 			steps {				
-				echo env.CHANGE_ID
+				echo "CHANGE_ID : ${env.CHANGE_ID}"
 			}
 		}
 		
