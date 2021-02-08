@@ -149,7 +149,7 @@ def buildEnvironnement(){
 	copyFileToRemote("build/nginx/app.conf", "~/mekalink-${configuration.dockerTag}/nginx/app.conf", configuration.ip)
 }
 
-def buildEnvironnement(){
+def buildApp(){
 	def configuration = currentConfiguration()
 	
 	preBuildDocker(configuration)
