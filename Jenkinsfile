@@ -128,7 +128,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-
+	fillFilesNginxConf(configuration)
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
@@ -350,7 +350,17 @@ def fillFilesDocker(configuration) {
 	}
 }
 
-// --- Jenkins helpers ---
+def fillFilesNginxConf(configuration) {
+
+	def variables = [
+		dockerTag: configuration.dockerTag,
+	]
+	
+	variables.each { key, val ->
+		sh "sed -i 's/{${key}}/${val}/g' build/nginx/app.conf"
+		sh "sed -i 's/${key}/${val}/g' build/nginx/app.conf"
+	}
+}
 
 // --- Jenkins helpers ---
 
