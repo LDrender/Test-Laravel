@@ -298,6 +298,8 @@ def copyDockerFile(dockerTag, ip) {
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
 	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/img/${appName}-${dockerTag}.img"
 	sh "ssh ${user}@${ip} sudo docker load -i ./img/${appName}-${dockerTag}.img"
+
+	sh "ssh ${user}@${ip} sudo rm -rf ./img/${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
