@@ -58,18 +58,18 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "mysql/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
+		copyFileToRemote(sqlFile, "~/mysql/", configuration.ip)
 
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql/", configuration.ip)
 	
 	}
 }
@@ -132,7 +132,7 @@ def buildApp(){
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
-	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app-${configuration.dockerTag}.conf", configuration.ip)
+	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
 	
 	preBuildDocker(configuration)
 }
