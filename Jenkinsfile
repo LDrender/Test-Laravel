@@ -51,7 +51,7 @@ def configuration(basePort) {
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
-			dockerTag: "dev" + basePort
+			dockerTag: "dev" + "-" + basePort
 		]
 	]
 }
@@ -288,7 +288,7 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
-	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
+	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
 }
 
@@ -296,8 +296,8 @@ def restartDocker(ip, destEnvName) {
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
-	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
-	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
+	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/img/${appName}-${dockerTag}.img"
+	sh "ssh ${user}@${ip} sudo docker load -i ./img/${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
