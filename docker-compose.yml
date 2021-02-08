@@ -26,8 +26,8 @@ services:
    ports:
      - "portApp:80"
    volumes:
-     - ./:/var/www
-     - ./build/nginx/:/etc/nginx/conf.d/
+     - ./mekalink-dockerTag:/var/www
+     - ./mekalink-dockerTag/nginx/:/etc/nginx/conf.d/
    networks:
      - app-network-dockerTag
 
@@ -40,7 +40,7 @@ services:
    ports:
      - dbPort:dbPort
    volumes:
-     - ./mysql-dockerTag/:/docker-entrypoint-initdb.d
+     - ./mekalink-dockerTag/mysql:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
    environment:
       - MYSQL_ROOT_PASSWORD=dbRootPassword

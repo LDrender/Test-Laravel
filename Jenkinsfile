@@ -58,18 +58,16 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "mysql-${configuration.dockerTag}/");
-
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
+		copyFileToRemote(sqlFile, "~/mekalink-${configuration.dockerTag}/mysql/", configuration.ip)
 
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mekalink-${configuration.dockerTag}/mysql/", configuration.ip)
 	
 	}
 }
@@ -85,6 +83,18 @@ pipeline {
 	agent any
 	triggers { cron(cron_string) }
 	stages {
+		stage('Build Environnement') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				buildEnvironnement()
+			}
+		}
 		stage('Build App') {
 			when {
 				anyOf {
@@ -124,15 +134,23 @@ pipeline {
 	}
 }
 
-def buildApp(){
+def buildEnvironnement(){
 	def configuration = currentConfiguration()
+
+	createRemoteDirectory(configuration.ip, "./mekalink-${configuration.dockerTag}")
+	createRemoteDirectory(configuration.ip, "./mekalink-${configuration.dockerTag}/nginx")
+	createRemoteDirectory(configuration.ip, "./mekalink-${configuration.dockerTag}/mysql")
 	
 	fillFilesEnv(configuration)
 	fillFilesNginxConf(configuration)
 	fillFilesDocker(configuration)
 
-	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
-	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
+	copyFileToRemote("docker-compose.yml", "~/mekalink-${configuration.dockerTag}/docker-compose.yml", configuration.ip)
+	copyFileToRemote("build/nginx/app.conf", "~/mekalink-${configuration.dockerTag}/nginx/app.conf", configuration.ip)
+}
+
+def buildEnvironnement(){
+	def configuration = currentConfiguration()
 	
 	preBuildDocker(configuration)
 }
@@ -283,9 +301,9 @@ def getIp(hostName) {
 
 def restartDocker(ip, destEnvName) {
 
-	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
-	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
-	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml stop"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml rm --force"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
 	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
@@ -296,10 +314,10 @@ def restartDocker(ip, destEnvName) {
 def copyDockerFile(dockerTag, ip) {
 	sh "sudo docker save -o ${appName}-${dockerTag}.img ${appName}:${dockerTag}"
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
-	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/img/${appName}-${dockerTag}.img"
-	sh "ssh ${user}@${ip} sudo docker load -i ./img/${appName}-${dockerTag}.img"
+	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/mekalink-${dockerTag}/${appName}-${dockerTag}.img"
+	sh "ssh ${user}@${ip} sudo docker load -i ./mekalink-${dockerTag}/${appName}-${dockerTag}.img"
 
-	sh "ssh ${user}@${ip} sudo rm -rf ./img/${appName}-${dockerTag}.img"
+	sh "ssh ${user}@${ip} sudo rm -rf ./mekalink-${dockerTag}/${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
@@ -464,5 +482,5 @@ def findRemoteDirectory(ip, directoryName){
 }
 
 def createRemoteDirectory(ip, directoryName) {
-		sh "ssh ${user}@${ip} mkdir -p ${directoryName}"
+	sh "ssh ${user}@${ip} mkdir -p ${directoryName}"
 }
