@@ -310,7 +310,6 @@ def preBuildDocker(configuration) {
 def fillFilesEnv(configuration) {
 
 	def confAppName = appName+"-"+configuration.dockerTag
-	def test = configuration.ip+":"+configuration.mysql
 
 	def variables = [
 		appName: confAppName,
@@ -318,8 +317,7 @@ def fillFilesEnv(configuration) {
 		dbPort: configuration.mysql,
 		dbDatabase: configuration.mysqlDataBase,
 		dbUsername: dbUser,
-		dbPassword: configuration.mysqlPassword,
-		mysql: test
+		dbPassword: configuration.mysqlPassword
 	]
 
 	//copy Exemple env file for fill next
