@@ -58,18 +58,18 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "./dump/mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "./mysql/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "./dump/mysql-${configuration.dockerTag}/", configuration.ip)
+		copyFileToRemote(sqlFile, "./mysql/", configuration.ip)
 		
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql/", configuration.ip)
 	
 	}
 }
@@ -289,7 +289,7 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 
 	if("${destEnvName}" != "prod"){
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < ./dump/mysql-${configuration.dockerTag}/dumpMekalinkProd.sql"
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	}
 	
 }
