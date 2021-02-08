@@ -47,7 +47,7 @@ def configuration(basePort) {
 		],
 		dev: [
 			app: 27000 + basePort,
-			mysql: 28000,
+			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
