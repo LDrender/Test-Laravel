@@ -38,7 +38,7 @@ services:
      - dbPort:dbPort
    volumes:
      - ./mysql:/docker-entrypoint-initdb.d
-     - ./data/mysql-dockerTag:/var/lib/mysql
+     - ./api:/var/lib/mysql
    environment:
       - MYSQL_ROOT_PASSWORD=dbRootPassword
       - MYSQL_DATABASE=dbDatabase

@@ -58,20 +58,18 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "./dump/mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "./mysql/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "./dump/mysql-${configuration.dockerTag}/", configuration.ip)
+		copyFileToRemote(sqlFile, "./mysql/", configuration.ip)
 		
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec -i mekalink-db-${configuration.dockerTag} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
-
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql/", configuration.ip)
 	
 	}
 }
@@ -141,6 +139,8 @@ def buildApp(){
 
 def pushBuildApp(){
 	def configuration = currentConfiguration()
+
+	pushToEnvironmentSpecific(configuration)
 				
 	copyDockerFile(configuration.dockerTag, configuration.ip)
 }
@@ -148,9 +148,7 @@ def pushBuildApp(){
 def deployApp() {	
 	def configuration = currentConfiguration()
 	
-	restartDocker(configuration.ip, configuration.dockerTag)
-
-	pushToEnvironmentSpecific(configuration)	
+	restartDocker(configuration.ip, configuration.dockerTag)	
 
 	if (toInt("" + configuration.mysql) != 0) {
 		def fileContent = generateHeidiSqlFile(configuration);
@@ -289,6 +287,10 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
+
+	if("${destEnvName}" != "prod"){
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	}
 	
 }
 
