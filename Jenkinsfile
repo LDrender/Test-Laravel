@@ -87,20 +87,6 @@ pipeline {
 	agent any
 	triggers { cron(cron_string) }
 	stages {
-
-		stage('Test') {
-			when {
-				anyOf {
-					branch 'env/*'
-					expression { return dailyDeploy() }
-					expression { return pullRequestDeploy() }
-				}
-			}
-			steps {				
-				echo "CHANGE_ID : ${env.BUILD_NUMBER}"
-			}
-		}
-		
 		stage('Build App') {
 			when {
 				anyOf {
@@ -200,10 +186,7 @@ def getBasePort() {
 	if (pullRequest()) {
 		return toInt(env.CHANGE_ID);
 	}
-	if (onReleaseBranch()) {
-		return toInt(getReleaseVersion().replaceAll("[^\\d.]", ""));
-	}
-	return 0
+	return env.BUILD_NUMBER
 }
 
 
