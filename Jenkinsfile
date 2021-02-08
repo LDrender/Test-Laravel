@@ -58,18 +58,20 @@ def configuration(basePort) {
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "./mysql/");
+	createRemoteDirectory(configuration.ip, "mysql-${configuration.dockerTag}/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "./mysql/", configuration.ip)
+		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
 		
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
 	
 	}
 }
@@ -128,7 +130,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-	fillFilesNginxConf(configuration)
+
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
@@ -287,10 +289,6 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
-
-	if("${destEnvName}" != "prod"){
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
-	}
 	
 }
 
@@ -350,17 +348,7 @@ def fillFilesDocker(configuration) {
 	}
 }
 
-def fillFilesNginxConf(configuration) {
-
-	def variables = [
-		dockerTag: configuration.dockerTag,
-	]
-	
-	variables.each { key, val ->
-		sh "sed -i 's/{${key}}/${val}/g' build/nginx/app.conf"
-		sh "sed -i 's/${key}/${val}/g' build/nginx/app.conf"
-	}
-}
+// --- Jenkins helpers ---
 
 // --- Jenkins helpers ---
 

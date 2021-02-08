@@ -14,7 +14,8 @@ services:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
    working_dir: /var/www/
-
+   networks:
+     - app-network
 
  #Nginx Service
  webserver-dockerTag:
@@ -37,7 +38,7 @@ services:
    ports:
      - dbPort:dbPort
    volumes:
-     - ./mysql:/docker-entrypoint-initdb.d
+     - ./dump/mysql-dockerTag/:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
    environment:
       - MYSQL_ROOT_PASSWORD=dbRootPassword
