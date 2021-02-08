@@ -97,7 +97,7 @@ pipeline {
 				}
 			}
 			steps {				
-				echo "CHANGE_ID : ${env.CHANGE_ID}"
+				echo "CHANGE_ID : ${env.BUILD_NUMBER}"
 			}
 		}
 		
@@ -199,6 +199,9 @@ def currentConfiguration() {
 def getBasePort() {
 	if (pullRequest()) {
 		return toInt(env.CHANGE_ID);
+	}
+	if (onReleaseBranch()) {
+		return toInt(getReleaseVersion().replaceAll("[^\\d.]", ""));
 	}
 	return 0
 }
