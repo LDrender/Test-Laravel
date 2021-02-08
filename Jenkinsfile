@@ -47,7 +47,7 @@ def configuration(basePort) {
 		],
 		dev: [
 			app: 27000 + basePort,
-			mysql: 28000 + basePort,
+			mysql: 28000,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
@@ -298,6 +298,8 @@ def copyDockerFile(dockerTag, ip) {
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
 	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
 	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
+
+	sh "ssh ${user}@${ip} sudo rm -rf ${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
