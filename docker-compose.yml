@@ -14,8 +14,6 @@ services:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
    working_dir: /var/www/
-   networks:
-     - app-network
 
  #Nginx Service
  webserver-dockerTag:
