@@ -186,7 +186,7 @@ def getBasePort() {
 	if (pullRequest()) {
 		return toInt(env.CHANGE_ID);
 	}
-	return env.BUILD_NUMBER
+	return toInt(env.BUILD_NUMBER);
 }
 
 
