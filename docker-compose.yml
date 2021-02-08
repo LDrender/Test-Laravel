@@ -2,52 +2,53 @@ version: '3'
 services:
 
  #PHP Service
- app:
+ app-dockerTag:
+   image: appName
    build:
      context: .
      dockerfile: Dockerfile
-   container_name: mekalink-app
+   container_name: mekalink-app-dockerTag
    restart: unless-stopped
    tty: true
    environment:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
-   working_dir: /var/www
+   working_dir: /var/www/
    networks:
      - app-network
 
  #Nginx Service
- webserver:
+ webserver-dockerTag:
    image: nginx:alpine
-   container_name: mekalink-webserver
+   container_name: mekalink-webserver-dockerTag
    restart: unless-stopped
    tty: true
    ports:
-     - "80:80"
-     - "443:443"
+     - "portApp:80"
    volumes:
      - ./:/var/www
-     - ./docker-compose/nginx/:/etc/nginx/conf.d/
+     - ./build/nginx/:/etc/nginx/conf.d/
    networks:
      - app-network
 
  #MySQL Service
- db:
+ db-dockerTag:
    image: mysql:5.7.22
-   container_name: mekalink-db
+   container_name: mekalink-db-dockerTag
    restart: unless-stopped
    tty: true
    ports:
-     - "3306:3306"
+     - dbPort:dbPort
    volumes:
+     - ./mysql-dockerTag/:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      - MYSQL_ROOT_PASSWORD=dbRootPassword
+      - MYSQL_DATABASE=dbDatabase
+      - MYSQL_USER=dbUsername
+      - MYSQL_PASSWORD=dbPassword
+      - MYSQL_HOST_ROOT=%
+      - MYSQL_TCP_PORT=dbPort
    networks:
      - app-network
 
