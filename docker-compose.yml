@@ -2,12 +2,12 @@ version: '3'
 services:
 
  #PHP Service
- app:
+ app-dockerTag:
    image: appName
    build:
      context: .
      dockerfile: Dockerfile
-   container_name: mekalink-app
+   container_name: mekalink-app-dockerTag
    restart: unless-stopped
    tty: true
    environment:
@@ -18,9 +18,9 @@ services:
      - app-network
 
  #Nginx Service
- webserver:
+ webserver-dockerTag:
    image: nginx:alpine
-   container_name: mekalink-webserver
+   container_name: mekalink-webserver-dockerTag
    restart: unless-stopped
    tty: true
    ports:
@@ -33,9 +33,9 @@ services:
      - app-network
 
  #MySQL Service
- db:
+ db-dockerTag:
    image: mysql:5.7.22
-   container_name: mekalink-db
+   container_name: mekalink-db-dockerTag
    restart: unless-stopped
    tty: true
    ports:
