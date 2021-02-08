@@ -288,8 +288,8 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 
-	if(destEnvName != "prod"){
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	if("${destEnvName}" != "prod"){
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	}
 	
 }
