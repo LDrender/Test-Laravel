@@ -301,9 +301,9 @@ def getIp(hostName) {
 
 def restartDocker(ip, destEnvName) {
 
-	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml stop"
-	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml rm --force"
-	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/app-${destEnvName}.yml up -d"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/docker-compose.yml stop"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/docker-compose.yml rm --force"
+	sh "ssh ${user}@${ip} sudo docker-compose -f ./mekalink-${dockerTag}/docker-compose.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
 	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db-${destEnvName} mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
