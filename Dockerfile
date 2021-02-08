@@ -36,8 +36,6 @@ COPY . .
 RUN composer install
 RUN composer dump-autoload
 
-# Generate key for Laravel
-CMD php artisan key:generate
 
 # Add user for laravel application
 RUN groupadd -g 1000 www
@@ -54,4 +52,4 @@ USER www
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
-CMD ["php-fpm"]
+CMD ["php-fpm", "-F"]
