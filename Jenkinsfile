@@ -128,11 +128,11 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-
+	fillFilesNginxConf(configuration)
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
-	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app.conf", configuration.ip)
+	copyFileToRemote("build/nginx/app.conf", "~/build/nginx/app-${configuration.dockerTag}.conf", configuration.ip)
 	
 	preBuildDocker(configuration)
 }
@@ -286,7 +286,7 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
-	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
+	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
 	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 
@@ -348,7 +348,17 @@ def fillFilesDocker(configuration) {
 	}
 }
 
-// --- Jenkins helpers ---
+def fillFilesNginxConf(configuration) {
+
+	def variables = [
+		dockerTag: configuration.dockerTag,
+	]
+	
+	variables.each { key, val ->
+		sh "sed -i 's/{${key}}/${val}/g' build/nginx/app.conf"
+		sh "sed -i 's/${key}/${val}/g' build/nginx/app.conf"
+	}
+}
 
 // --- Jenkins helpers ---
 
