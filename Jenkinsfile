@@ -239,9 +239,18 @@ def onMasterBranch() {
 
 def pullRequestDeploy() {
 	if (pullRequest()) {
-		return !pullRequestTitleContainsTag("minor")
-	}
-	return false
+        if( !pullRequestTitleContainsTag("resetdb") )
+        {
+            echo "pull request deploy required, [resetdb] detected"
+            return true
+        }
+        else{
+            echo "pull request deploy not required, [resetdb] detected"
+            return false
+        }
+    }
+    echo "This is not a pull request so no pull request deploy"
+    return false
 }
 
 def dailyDeploy() {
@@ -288,7 +297,7 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
-	if (pullRequestTitleContainsTag("resetdb") || "${destEnvName}" == "preprod"){
+	if (pullRequestDeploy() == true || "${destEnvName}" == "preprod"){
 		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	}
 	
