@@ -6,7 +6,7 @@ appName = "mekalink"
 appUseSSL = false
 
 appDevIpDev = "192.168.42.19"
-appDevIpPreProd = "192.168.42.54"
+appDevIpPreProd = "192.168.42.178"
 appDevIpProd = "192.168.42.54"
 
 devHostName = "srvmekalinkdev.amplitude-ortho.com"
@@ -47,31 +47,29 @@ def configuration(basePort) {
 		],
 		dev: [
 			app: 27000 + basePort,
-			mysql: 28000 + basePort,
+			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
 			host: devHostName,
-			dockerTag: "dev" + basePort
+			dockerTag: "dev" + "-" + basePort
 		]
 	]
 }
 
 def pushToEnvironmentSpecific(configuration) {
 
-	createRemoteDirectory(configuration.ip, "mysql-${configuration.dockerTag}/");
+	createRemoteDirectory(configuration.ip, "mysql/");
 
 	if ("${configuration.dockerTag}" != "prod") {
 
 		def sqlFile = dumpDatabase()
 		
-		copyFileToRemote(sqlFile, "~/mysql-${configuration.dockerTag}/", configuration.ip)
-		
-		sh "ssh -o StrictHostKeyChecking=no ${user}@${configuration.ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+		copyFileToRemote(sqlFile, "~/mysql/", configuration.ip)
 
 	} 
 	else {
 
-		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql-"+configuration.dockerTag+"/", configuration.ip)
+		copyFileToRemote("./${dockerFilesDirectory}/mysql/init_db.sql", "~/mysql/", configuration.ip)
 	
 	}
 }
@@ -87,20 +85,6 @@ pipeline {
 	agent any
 	triggers { cron(cron_string) }
 	stages {
-
-		stage('Test') {
-			when {
-				anyOf {
-					branch 'env/*'
-					expression { return dailyDeploy() }
-					expression { return pullRequestDeploy() }
-				}
-			}
-			steps {				
-				echo "CHANGE_ID : ${env.CHANGE_ID}"
-			}
-		}
-		
 		stage('Build App') {
 			when {
 				anyOf {
@@ -144,7 +128,7 @@ def buildApp(){
 	def configuration = currentConfiguration()
 	
 	fillFilesEnv(configuration)
-
+	fillFilesNginxConf(configuration)
 	fillFilesDocker(configuration)
 
 	copyFileToRemote("docker-compose.yml", "~/app-${configuration.dockerTag}.yml", configuration.ip)
@@ -200,7 +184,7 @@ def getBasePort() {
 	if (pullRequest()) {
 		return toInt(env.CHANGE_ID);
 	}
-	return 0
+	return toInt(env.BUILD_NUMBER);
 }
 
 
@@ -302,7 +286,11 @@ def restartDocker(ip, destEnvName) {
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
-	sh "ssh ${user}@${ip} sudo docker exec mekalink-app php artisan key:generate"
+	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
+	
+	if (pullRequestTitleContainsTag("resetdb") || "${destEnvName}" == "preprod"){
+		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
+	}
 	
 }
 
@@ -312,6 +300,8 @@ def copyDockerFile(dockerTag, ip) {
 	sh "sudo chmod 755 ${appName}-${dockerTag}.img"
 	sh "scp -o StrictHostKeyChecking=no ${appName}-${dockerTag}.img ${user}@${ip}:~/${appName}-${dockerTag}.img"
 	sh "ssh ${user}@${ip} sudo docker load -i ${appName}-${dockerTag}.img"
+
+	sh "ssh ${user}@${ip} sudo rm -rf ${appName}-${dockerTag}.img"
 }
 
 def preBuildDocker(configuration) {
@@ -362,7 +352,17 @@ def fillFilesDocker(configuration) {
 	}
 }
 
-// --- Jenkins helpers ---
+def fillFilesNginxConf(configuration) {
+
+	def variables = [
+		dockerTag: configuration.dockerTag,
+	]
+	
+	variables.each { key, val ->
+		sh "sed -i 's/{${key}}/${val}/g' build/nginx/app.conf"
+		sh "sed -i 's/${key}/${val}/g' build/nginx/app.conf"
+	}
+}
 
 // --- Jenkins helpers ---
 

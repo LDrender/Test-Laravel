@@ -14,8 +14,7 @@ services:
      SERVICE_NAME: app
      SERVICE_TAGS: dev
    working_dir: /var/www/
-   networks:
-     - app-network
+
 
  #Nginx Service
  webserver-dockerTag:
@@ -28,19 +27,18 @@ services:
    volumes:
      - ./:/var/www
      - ./build/nginx/:/etc/nginx/conf.d/
-   networks:
-     - app-network
+
 
  #MySQL Service
- db-dockerTag:
+ db:
    image: mysql:5.7.22
-   container_name: mekalink-db-dockerTag
+   container_name: mekalink-db
    restart: unless-stopped
    tty: true
    ports:
      - dbPort:dbPort
    volumes:
-     - ./mysql-dockerTag/:/docker-entrypoint-initdb.d
+     - ./mysql/:/docker-entrypoint-initdb.d
      - ./api:/var/lib/mysql
    environment:
       - MYSQL_ROOT_PASSWORD=dbRootPassword
@@ -49,10 +47,3 @@ services:
       - MYSQL_PASSWORD=dbPassword
       - MYSQL_HOST_ROOT=%
       - MYSQL_TCP_PORT=dbPort
-   networks:
-     - app-network
-
-#Docker Networks
-networks:
- app-network:
-   driver: bridge
