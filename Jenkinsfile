@@ -93,7 +93,8 @@ pipeline {
 					expression { return pullRequestDeploy() }
 				}
 			}
-			steps {				
+			steps {		
+				echo "${env.CHANGE_TITLE}"		
 				buildApp()
 			}
 		}
