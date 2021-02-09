@@ -93,8 +93,7 @@ pipeline {
 					expression { return pullRequestDeploy() }
 				}
 			}
-			steps {		
-				echo "${env.getEnvironment()}"		
+			steps {				
 				buildApp()
 			}
 		}
