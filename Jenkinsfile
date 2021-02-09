@@ -94,7 +94,7 @@ pipeline {
 				}
 			}
 			steps {		
-				echo "${env.CHANGE_TITLE}"		
+				echo "${env.getEnvironment()}"		
 				buildApp()
 			}
 		}
