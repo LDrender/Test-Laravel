@@ -121,6 +121,18 @@ pipeline {
 				deployApp()
 			}
 		}
+		stage('Unit Test') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				unitTest()
+			}
+		}
 		stage('Clear Cache') {
 			when {
 				anyOf {
@@ -170,13 +182,18 @@ def deployApp() {
 	writeJenkinsBuildInfos(configuration)
 }
 
+def unitTest() {
+	def configuration = currentConfiguration()
+
+	testLaravel(configuration.ip, configuration.dockerTag)
+
+}
+
 def clearCache() {
 
 	echo "Clear docker (Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.)"
 	sh "sudo docker system prune"
 
-	echo "Clear workspace Jenkins"
-	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_${environment()}"
 }
 
 
@@ -322,6 +339,10 @@ def restartDocker(ip, destEnvName) {
 		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	}
 	
+}
+
+def testLaravel(ip, destEnvName) {
+	sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-app-${destEnvName} php artisan test"
 }
 
 
