@@ -177,7 +177,7 @@ def clearCache() {
 	sh "sudo docker system prune"
 
 	echo "Clear workspace Jenkins"
-	sh "sudo rm -rf /var/lib/jenkins/workspace/"
+	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_${environment()}*"
 }
 
 
