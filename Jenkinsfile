@@ -7,7 +7,7 @@ appUseSSL = false
 
 appDevIpDev = "192.168.17.68"
 appDevIpPreProd = "192.168.42.178"
-appDevIpProd = "192.168.42.54"
+appDevIpProd = "192.168.16.92"
 
 devHostName = "srvmekalinkdev.Amplitude.fr"
 preProdHostName = "srvmekalinkpreprod.Amplitude.fr"
@@ -121,6 +121,18 @@ pipeline {
 				deployApp()
 			}
 		}
+		stage('Clear Cache') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				clearCache()
+			}
+		}
 	}
 }
 
@@ -159,13 +171,12 @@ def deployApp() {
 }
 
 def clearCache() {
-	def env = environment()
 
 	echo "Clear docker (Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.)"
 	sh "sudo docker system prune"
 
 	echo "Clear workspace Jenkins"
-	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_*"
+	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_${environment()}"
 }
 
 
