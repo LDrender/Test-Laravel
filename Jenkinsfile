@@ -121,18 +121,6 @@ pipeline {
 				deployApp()
 			}
 		}
-		stage('Clear Cache') {
-			when {
-				anyOf {
-					branch 'env/*'
-					expression { return dailyDeploy() }
-					expression { return pullRequestDeploy() }
-				}
-			}
-			steps {				
-				clearCache()
-			}
-		}
 	}
 }
 
@@ -171,13 +159,13 @@ def deployApp() {
 }
 
 def clearCache() {
-	def configuration = currentConfiguration()
+	def env = environment()
 
 	echo "Clear docker (Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.)"
 	sh "sudo docker system prune"
 
 	echo "Clear workspace Jenkins"
-	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_${environment()}*"
+	sh "sudo rm -rf /var/lib/jenkins/workspace/Test-Laravel_env_*"
 }
 
 
