@@ -5,13 +5,13 @@
 appName = "mekalink"
 appUseSSL = false
 
-appDevIpDev = "192.168.42.19"
+appDevIpDev = "192.168.16.65"
 appDevIpPreProd = "192.168.42.178"
 appDevIpProd = "192.168.42.54"
 
-devHostName = "srvmekalinkdev.amplitude-ortho.com"
-preProdHostName = "srvmekalinkpreprod.amplitude-ortho.com"
-prodHostName = "srvmekalinkprod.amplitude-ortho.com"
+devHostName = "srvmekalinkdev.Amplitude.fr"
+preProdHostName = "srvmekalinkpreprod.Amplitude.fr"
+prodHostName = "srvmekalinkprod.Amplitude.fr"
 
 dbHost = "db"
 dbUser = "mekalinkUser"
@@ -121,6 +121,18 @@ pipeline {
 				deployApp()
 			}
 		}
+		stage('Clear Cache') {
+			when {
+				anyOf {
+					branch 'env/*'
+					expression { return dailyDeploy() }
+					expression { return pullRequestDeploy() }
+				}
+			}
+			steps {				
+				clearCache()
+			}
+		}
 	}
 }
 
@@ -156,6 +168,16 @@ def deployApp() {
 	}
 	
 	writeJenkinsBuildInfos(configuration)
+}
+
+def clearCache() {
+	def configuration = currentConfiguration()
+
+	echo "Clear docker (Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.)"
+	sh "sudo docker system prune"
+
+	echo "Clear workspace Jenkins"
+	sh "sudo rm -rf /var/lib/jenkins/workspace/"
 }
 
 
