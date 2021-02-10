@@ -5,7 +5,7 @@
 appName = "mekalink"
 appUseSSL = false
 
-appDevIpDev = "192.168.16.65"
+appDevIpDev = "192.168.17.68"
 appDevIpPreProd = "192.168.42.178"
 appDevIpProd = "192.168.42.54"
 
