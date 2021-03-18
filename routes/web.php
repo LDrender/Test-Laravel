@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\ClientsController;
+use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -13,8 +14,9 @@ use App\Http\Controllers\ClientsController;
 |
 */
 
-Route::view('/', 'welcome');
-Route::view('contact', 'contact');
-Route::view('a-propos', 'a-propos');
-Route::get('clients', [ClientsController::class, 'list'])->name('clients.list');
-Route::post('clients', [ClientsController::class, 'store'])->name('clients.store');
+
+Route::view('/test', 'test');
+
+Route::get('/', 'App\Http\Controllers\PageController@mapping');
+
+Route::post('/api/filterGraph', 'App\Http\Controllers\FilterGraphController@setListFilter');

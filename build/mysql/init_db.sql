@@ -4,84 +4,78 @@
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `mekalink`
+-- Base de données : `mekalinks`
 --
-CREATE DATABASE IF NOT EXISTS `mekalink` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `mekalink`;
+CREATE DATABASE IF NOT EXISTS `mekalinks` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `mekalinks`;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `clients`
+-- Structure de la table `etude`
 --
 
-DROP TABLE IF EXISTS `clients`;
-CREATE TABLE IF NOT EXISTS `clients` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL,
-  `entreprise_id` int(11) NOT NULL,
-  `updated_at` varchar(50) NOT NULL,
-  `created_at` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `entreprise` (`entreprise_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `etude`;
+CREATE TABLE IF NOT EXISTS `etude` (
+  `etude_id` int(11) NOT NULL AUTO_INCREMENT,
+  `etude_name` varchar(100) NOT NULL,
+  `etude_description` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`etude_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `entreprises`
+-- Structure de la table `link`
 --
 
-DROP TABLE IF EXISTS `entreprises`;
-CREATE TABLE IF NOT EXISTS `entreprises` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`)
+DROP TABLE IF EXISTS `link`;
+CREATE TABLE IF NOT EXISTS `link` (
+  `link_id` int(11) NOT NULL AUTO_INCREMENT,
+  `link_id_objet_1` int(11) NOT NULL,
+  `link_id_objet_2` int(11) NOT NULL,
+  `link_id_raccordement` int(11) DEFAULT NULL,
+  `link_revision_objet_1` varchar(100) DEFAULT NULL,
+  `link_revision_objet_2` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`link_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
+
+
+--
+-- Structure de la table `objet`
+--
+
+DROP TABLE IF EXISTS `objet`;
+CREATE TABLE IF NOT EXISTS `objet` (
+  `obj_id` int(11) NOT NULL AUTO_INCREMENT,
+  `obj_no_plan` varchar(100) NOT NULL,
+  `obj_code_article` varchar(100) DEFAULT NULL,
+  `obj_id_etude` varchar(100) DEFAULT NULL,
+  `obj_revision` varchar(100) DEFAULT NULL,
+  `obj_designation` varchar(100) DEFAULT NULL,
+  `obj_type` int(11) DEFAULT NULL,
+  `obj_date_creation` date DEFAULT NULL,
+  `obj_author` varchar(100) DEFAULT NULL,
+  `obj_img` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`obj_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+
+
+--
+-- Structure de la table `raccordement`
+--
+
+DROP TABLE IF EXISTS `raccordement`;
+CREATE TABLE IF NOT EXISTS `raccordement` (
+  `raccordement_id` int(11) NOT NULL AUTO_INCREMENT,
+  `raccordement_name` varchar(100) NOT NULL,
+  `raccordement_revision` varchar(100) DEFAULT NULL,
+  `raccordement_justificatif` varchar(100) DEFAULT NULL,
+  `raccordement_id_etude` int(11) NOT NULL,
+  `raccordement_author` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`raccordement_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
---
--- Déchargement des données de la table `entreprises`
---
-
-INSERT INTO `entreprises` (`id`, `name`) VALUES
-(1, 'Entreprise Test');
-
--- --------------------------------------------------------
-
---
--- Structure de la table `migrations`
---
-
-DROP TABLE IF EXISTS `migrations`;
-CREATE TABLE IF NOT EXISTS `migrations` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

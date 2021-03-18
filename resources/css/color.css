@@ -1,0 +1,8 @@
+/*HTML use for creates globals variables to use in css files*/
+html{
+    --lightGray : #5E5E5E;
+    --lightGray_2: #505050;
+    --Gray : #3F3F3F;
+    --darkGray : #2A2A2A;
+    --Red: #C60000;
+}

@@ -1,0 +1,53 @@
+.editeur{
+    position: fixed;
+    right: 0%;
+    width: 35rem;
+    height: calc(100% - 7rem);
+    background-color: ivory;
+    box-shadow: -2px 0px 10px 0px rgba(0, 0, 0, 1);
+    -moz-transition: margin-right 1s linear, box-shadow 1s linear;
+    -webkit-transition: margin-right 1s linear, box-shadow 1s linear;
+    -ms-transition: margin-right 1s linear, box-shadow 1s linear;
+    transition: margin-right 1s linear, box-shadow 1s linear;
+    margin-right: -100%;
+    padding: 1rem 2rem 2rem 2rem;
+    overflow-y: auto;
+    z-index: 102;
+}
+
+    .editeur *{
+        color: var(--darkGray);
+    }
+
+    .editeur.active{
+        -moz-transition: margin-right 1s linear, box-shadow 1s linear;
+        -webkit-transition: margin-right 1s linear, box-shadow 1s linear;
+        -ms-transition: margin-right 1s linear, box-shadow 1s linear;
+        transition: margin-right 1s linear, box-shadow 1s linear;
+        margin-right: 0;
+    }
+
+    .editeur .exit:hover{
+        -moz-transition: color 0.5s linear;
+        -webkit-transition: color 0.5s linear;
+        -ms-transition: color 0.5s linear;
+        transition: color 0.5s linear;
+        color: var(--Red) !important;
+    }
+
+    .editeur textarea{
+        resize: none;
+    }
+
+    .editeur button,
+    .editeur input[type="submit"] {
+        margin-top: 1rem;
+    }
+
+    .editeur .extra {
+        margin-top: 0 !important;
+    }
+
+    #update_raccordement_form, #update_article_form{
+        margin-bottom: 0;
+    }

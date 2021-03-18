@@ -1,0 +1,102 @@
+.formObjet{
+    position: fixed;
+    width: 35rem;
+    display: none;
+    background-color: ivory;
+    box-shadow: -2px 0px 10px 0px rgba(0, 0, 0, 1);
+    -moz-transition: margin-right 1s linear, box-shadow 1s linear;
+    -webkit-transition: margin-right 1s linear, box-shadow 1s linear;
+    -ms-transition: margin-right 1s linear, box-shadow 1s linear;
+    transition: margin-right 1s linear, box-shadow 1s linear;
+    margin-right: -100%;
+    padding: 1rem 1rem 1rem 1rem;
+    overflow-y: auto;
+    z-index: 2000;
+    border-radius: 3px;
+}
+
+    .formObjet *{
+        color: var(--darkGray);
+    }
+
+    .formObjet.active{
+        -moz-transition: margin-right 1s linear, box-shadow 1s linear;
+        -webkit-transition: margin-right 1s linear, box-shadow 1s linear;
+        -ms-transition: margin-right 1s linear, box-shadow 1s linear;
+        transition: margin-right 1s linear, box-shadow 1s linear;
+        margin-right: 0;
+    }
+
+    .formObjet .exit:hover{
+        -moz-transition: color 0.5s linear;
+        -webkit-transition: color 0.5s linear;
+        -ms-transition: color 0.5s linear;
+        transition: color 0.5s linear;
+        color: var(--Red) !important;
+    }
+
+    .formObjet textarea{
+        resize: none;
+    }
+
+    .formObjet button,
+    .formObjet input[type="submit"] {
+        margin-top: 1rem;
+    }
+
+    .formObjet .extra {
+        margin-top: 0 !important;
+    }
+
+    .formObjet{
+        margin-bottom: 0;
+    }
+
+
+
+    /* context menu (right click) */
+
+.context-menu {
+    display: none;
+    position: absolute;
+    z-index: 10000;
+    background-color: ivory;
+    border: solid 1px #dfdfdf;
+    border-radius: 4px;
+  }
+  
+  .context-menu--active {
+    display: block;
+  }
+  
+  
+  .context-menu__item {
+    display: block;
+    margin-bottom: 4px;
+    padding: 0 12px 0 6px;
+    float: none !important;
+    text-align: left;
+  }
+
+  .context-menu__item:first-child {
+    border-radius: 3px 3px 0 0;
+  }
+  
+  .context-menu__item:last-child {
+    margin-bottom: 0;
+    border-radius: 0 0 3px 3px;
+  }
+  
+  .context-menu__link {
+    display: block;
+    padding: 4px 12px;
+    color: #3e4447;
+    text-decoration: none;
+  }
+  
+  .context-menu__item:hover {
+    background-color: #3e4447;
+  }
+  .context-menu__item:hover > .context-menu__link {
+    color: #fff;
+  }

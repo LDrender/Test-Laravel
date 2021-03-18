@@ -1,0 +1,77 @@
+#map {
+    width: 100%;
+    height: calc(100vh - 4rem);
+    z-index: 1;
+}
+#map > svg{
+  width: inherit;
+  height: inherit;
+}
+  
+  .infoObjet {
+    position: fixed;
+    display: inline-block;
+    visibility: hidden;
+    width: max-content;
+    background-color: ivory;
+    color: var(--darkGray);
+    text-align: left;
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    -moz-transition: visibility 0.5s ease-in-out;
+    -webkit-transition: visibility 0.5s ease-in-out;
+    -ms-transition: visibility 0.5s ease-in-out;
+    transition: visibility 0.5s ease-in-out;
+  
+    /* Position the objet */
+    position: absolute;
+    z-index: 100;
+  }
+
+
+  .infoObjet span {
+      font-weight: initial;
+      -moz-user-select: all;
+      -webkit-user-select: all;
+      -ms-user-select: all;
+      user-select: all;
+  }
+
+  .infoObjet li {
+    font-weight: bold;
+  }
+
+  
+  .infoObjet.active {
+    visibility: visible;
+    -moz-transition: visibility 0.5s ease-in-out;
+    -webkit-transition: visibility 0.5s ease-in-out;
+    -ms-transition: visibility 0.5s ease-in-out;
+    transition: visibility 0.5s ease-in-out;
+  }
+
+  .selected {
+    background-color: orange;
+    font-weight: bold;
+    border-radius: 3px;
+  }
+
+  
+
+
+  svg{
+    z-index: 5;
+  }
+
+  svg>g>g,svg>g>g>circle{
+    z-index: 4;
+  }
+
+  svg>g>text{
+    z-index: 3;
+  }
+
+  svg>g>path{
+    z-index: 2;
+  }

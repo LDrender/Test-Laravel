@@ -3,24 +3,24 @@
 // Must be configured by app
 // ----------------------------------------------
 appName = "mekalink"
-appUseSSL = false
+appUseSSL = true
 
 appDevIpDev = "192.168.17.68"
 appDevIpPreProd = "192.168.42.178"
 appDevIpProd = "192.168.16.92"
 
-devHostName = "srvmekalinkdev.Amplitude.fr"
+testHostName = "srvmekalinktest.Amplitude.fr"
 preProdHostName = "srvmekalinkpreprod.Amplitude.fr"
 prodHostName = "srvmekalinkprod.Amplitude.fr"
 
 dbHost = "db"
 dbUser = "mekalinkUser"
-dbPassword = "SLXMK6BCCYWWTA3J"
+dbPassword = "50366E644F3469333"
 secretFolder = "/var/secret/mekalink"
 mysqlPassword = "M3kaL1f0"
 
 dockerFilesDirectory="build"
-user="dev"
+user="appuser"
 masterBranch = "main"
 
 // ----------------------------------------------
@@ -50,8 +50,16 @@ def configuration(basePort) {
 			mysql: 3306,
 			mysqlDataBase: "mekalink",
 			mysqlPassword: mysqlPassword,
-			host: devHostName,
-			dockerTag: "dev" + "-" + basePort
+			host: testHostName,
+			dockerTag: "test" + "-" + basePort
+		],
+		pr: [
+			app: 32000 + basePort,
+			mysql: 3306,
+			mysqlDataBase: "mekalink",
+			mysqlPassword: mysqlPassword,
+			host: testHostName,
+			dockerTag: "PR" + "-" + basePort
 		]
 	]
 }
@@ -172,7 +180,8 @@ def pushBuildApp(){
 def deployApp() {	
 	def configuration = currentConfiguration()
 	
-	restartDocker(configuration.ip, configuration.dockerTag)	
+	writeFileToRemote(configuration.ip, "clean.app-${configuration.dockerTag}.sh", generateCleanSH(configuration, appName))
+	restartDocker(configuration.ip, configuration.dockerTag)
 
 	if (toInt("" + configuration.mysql) != 0) {
 		def fileContent = generateHeidiSqlFile(configuration);
@@ -192,7 +201,7 @@ def unitTest() {
 def clearCache() {
 
 	echo "Clear docker (Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.)"
-	sh "sudo docker system prune"
+	sh "sudo docker system prune -f"
 
 }
 
@@ -310,7 +319,7 @@ def toInt(String s) {
 def getIp(hostName) {
 	//VMWare Test
 	if(appUseSSL != true){
-		if(hostName == devHostName){
+		if(hostName == testHostName){
 			return appDevIpDev
 		}
 		else if(hostName == preProdHostName){
@@ -330,12 +339,14 @@ def getIp(hostName) {
 
 def restartDocker(ip, destEnvName) {
 
+	echo "${env.CHANGE_ID}"
+
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml stop"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml rm --force"
 	sh "ssh ${user}@${ip} sudo docker-compose -f app-${destEnvName}.yml up -d"
 	sh "ssh ${user}@${ip} sudo docker exec mekalink-app-${destEnvName} php artisan key:generate"
 	
-	if (pullRequestDeploy() == true || "${destEnvName}" == "preprod"){
+	if (pullRequestDeploy() == true || "${destEnvName}" != "prod"){
 		sh "ssh -o StrictHostKeyChecking=no ${user}@${ip} sudo docker exec -i mekalink-db mysql -u ${dbUser} -p${mysqlPassword} mekalink < /var/lib/jenkins/secrets/dumpMekalinkProd.sql"
 	}
 	
@@ -420,7 +431,7 @@ def fillFilesNginxConf(configuration) {
 def writeJenkinsBuildInfos(configuration) {
 	def description = "";
 	if (appUseSSL) {
-		description += """<a href="https://${configuration.host}:${configuration.app}">Accéder à l'application</a><br/>"""
+		description += """<a href="http://${configuration.host}:${configuration.app}">Accéder à l'application</a><br/>"""
 	} else {
 		description += """<a href="http://${configuration.ip}:${configuration.app}">Accéder à l'application</a><br/>"""
 	}
@@ -451,33 +462,50 @@ def dumpDatabase() {
 // --- Generated files ---
 
 
+def generateCleanSH(configuration, appName) {
+	return """
+#!/bin/bash
+
+sudo docker-compose -f app-${configuration.dockerTag}.yml stop
+sudo docker-compose -f app-${configuration.dockerTag}.yml rm --force
+sudo docker image prune -a --force
+sudo rm -f app-${configuration.dockerTag}.yml
+sudo rm -f clean.app-${configuration.dockerTag}.sh
+
+
+"""
+}
+
+
 def generateHeidiSqlFile(configuration) {
 	return """Windows Registry Editor Version 5.00
 
-[HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}]
-"SessionCreated"="2018-10-18 11:46:18"
+[HKEY_CURRENT_USER\\SOFTWARE\\HeidiSQL\\Servers\\${appName}]
+"SessionCreated"="2021-02-25 15:21:30"
 "Folder"=dword:00000001
 
-[HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}\\${configuration.dockerTag}]
-"SessionCreated"="2019-01-18 15:15:29"
+[HKEY_CURRENT_USER\\SOFTWARE\\HeidiSQL\\Servers\\${appName}\\${configuration.dockerTag}]
+"SessionCreated"="2021-02-25 15:21:41"
 "Host"="${configuration.ip}"
 "WindowsAuth"=dword:00000000
+"CleartextPluginEnabled"=dword:00000000
 "User"="${dbUser}"
-"Password"="${mysqlPassword}"
+"Password"="${dbPassword}"
 "LoginPrompt"=dword:00000000
 "Port"="${configuration.mysql}"
 "NetType"=dword:00000000
 "Compressed"=dword:00000000
 "LocalTimeZone"=dword:00000000
-"QueryTimeout"=dword:00000000
-"KeepAlive"=dword:00000000
+"QueryTimeout"=dword:0000001e
+"KeepAlive"=dword:00000014
 "FullTableStatus"=dword:00000001
 "Databases"=""
+"Library"="libmariadb.dll"
 "Comment"=""
 "StartupScriptFilename"=""
 "TreeBackground"=dword:1fffffff
 "SSHtunnelHost"=""
-"SSHtunnelHostPort"=dword:00000000
+"SSHtunnelHostPort"=dword:00000016
 "SSHtunnelUser"=""
 "SSHtunnelPassword"="5"
 "SSHtunnelTimeout"=dword:00000004
@@ -488,11 +516,11 @@ def generateHeidiSqlFile(configuration) {
 "SSL_Cert"=""
 "SSL_CA"=""
 "SSL_Cipher"=""
-"ServerVersionFull"="5.7.20 - MySQL Community Server (GPL)"
-"ConnectCount"=dword:00000002
-"ServerVersion"=dword:0000c620
-"LastConnect"="2019-01-21 10:49:23"
-"lastUsedDB"="s11"
+"IgnoreDatabasePattern"=""
+"ServerVersionFull"="5.7.22 - MySQL Community Server (GPL)"
+"ConnectCount"=dword:00000001
+"ServerVersion"=dword:0000c622
+"LastConnect"="2021-02-25 15:22:13"
 
 [HKEY_CURRENT_USER\\Software\\HeidiSQL\\Servers\\${appName}\\${configuration.dockerTag}\\QueryHistory]
 
